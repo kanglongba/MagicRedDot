@@ -158,17 +158,24 @@ public class QQRedDotView extends View {
         dotRectF.set(left, top, right, bottom);
     }
 
+    /**
+     * 利用属性动画拖动view
+     * @param toX
+     * @param toY
+     * @param oldX
+     * @param oldY
+     */
     public void animatorMove(float toX, float toY, float oldX, float oldY) {
         ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(this, "translationX", oldX, toX);
         ObjectAnimator objectAnimator1 = ObjectAnimator.ofFloat(this, "translationY", oldY, toY);
         AnimatorSet animatorSet = new AnimatorSet();
         animatorSet.playTogether(objectAnimator, objectAnimator1);
-        animatorSet.setDuration(40);
+        animatorSet.setDuration(1);
         animatorSet.start();
     }
 
     //属性动画,可以移动view,但是不能超过父布局的视图布局
     //scrollTo scrollBy,只能移动view的内容,不能移动View
-    //实时绘制view,同样是只能移动view的内容,不能移动view
+    //实时绘制view,同样是只能移动view的内容,不能移动view.而且必须保证有一个足够大的画布
     //requestLayout(),实时layout控件,但是拖动的时候有抖动
 }
