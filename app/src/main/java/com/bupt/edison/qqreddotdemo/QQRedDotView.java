@@ -1,5 +1,7 @@
 package com.bupt.edison.qqreddotdemo;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -76,8 +78,6 @@ public class QQRedDotView extends View {
         Log.d("edison onLayout",getPivotX()+" "+getPivotY());
         Log.d("edison onLayout","width: "+getWidth()+" "+"height: "+getHeight());
         Log.d("edison onLayout","left: "+getLeft()+" "+"top: "+getTop()+" right: "+getRight()+" bottom: "+getBottom());
-        dotRectF.set(0,0,getWidth(),getHeight());
-        touchRectF.set(getLeft(),getTop(),getRight(),getBottom());
     }
 
     @Override
@@ -105,38 +105,44 @@ public class QQRedDotView extends View {
         canvas.drawRoundRect(dotRectF,12,12,dotPaint);
     }
 
-    float downX,downY,moveX,moveY,upX,upY;
+    float downX,downY,moveX,moveY,upX,upY,startX,startY;
     boolean isdragable = false;
+    long startTime,currentTime;
+    boolean isFirst = true;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()){
             case MotionEvent.ACTION_DOWN:
-                downX = event.getX()+getLeft();
-                downY = event.getY()+getTop();
+                downX = event.getX();
+                downY = event.getY();
                 Log.d("edison action down","downX: "+downX+" downY: "+downY);
-                if(touchRectF.contains(downX,downY)){
+                if(dotRectF.contains(downX,downY)){
                     isdragable = true;
+                    startX = event.getRawX();
+                    startY = event.getRawY();
+                    if(isFirst) {
+                        initX = startX;
+                        initY = startY;
+                        isFirst = false;
+                    }
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if(isdragable){
-                    moveX = event.getX()+getLeft();
-                    moveY = event.getY()+getTop();
-                    setX(moveX);
-                    setY(moveY);
-                    //更新范围矩阵
-                    requestLayout();
+                    moveX = event.getRawX();
+                    moveY = event.getRawY();
+                    animatorMove(moveX-initX,moveY-initY,startX-initX,startY-initY);
+                    startX = moveX;
+                    startY = moveY;
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 if(isdragable){
                     isdragable = false;
-                    upX = event.getX()+getLeft();
-                    upY = event.getY()+getTop();
-                    //更新范围矩阵
-                    touchRectF.set(upX,upY,upX+getWidth(),upY+getHeight());
-                    requestLayout();
+                    upX = event.getRawX();
+                    upY = event.getRawY();
+                    animatorMove(upX-initX,upY-initY,startX-initX,startY-initY);
                 }
                 break;
             default:
@@ -153,12 +159,17 @@ public class QQRedDotView extends View {
         dotRectF.set(left,top,right,bottom);
     }
 
-    public void animatorMove(){
-
+    public void animatorMove(float toX,float toY,float oldX,float oldY){
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(this,"translationX",oldX,toX);
+        ObjectAnimator objectAnimator1 = ObjectAnimator.ofFloat(this,"translationY",oldY,toY);
+        AnimatorSet animatorSet = new AnimatorSet();
+        animatorSet.playTogether(objectAnimator,objectAnimator1);
+        animatorSet.setDuration(40);
+        animatorSet.start();
     }
 
-    //属性动画
+    //属性动画,可以移动view,但是不能超过父布局的视图布局
     //scrollTo scrollBy,只能移动view的内容,不能移动View
     //实时绘制view,同样是只能移动view的内容,不能移动view
-    //requestLayout(),实时layout控件,拖动的时候有抖动
+    //requestLayout(),实时layout控件,但是拖动的时候有抖动
 }
