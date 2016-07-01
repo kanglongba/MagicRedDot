@@ -20,7 +20,7 @@ public class QQRedDotView extends View {
     Paint dotPaint; //红点画笔
     Paint rubberPaint;//皮筋画笔
     Paint domainPaint;//范围画笔
-    float initX,initY;//红点初始时的位置
+    float initX, initY;//红点初始时的位置
     int resetRedius;//复位的距离
     int dismissRedius;//消失的距离
     int dotRedius;//红点的距离
@@ -42,7 +42,7 @@ public class QQRedDotView extends View {
         init();
     }
 
-    private void init(){
+    private void init() {
         dotPaint = new Paint();
         dotPaint.setAntiAlias(true);
         dotPaint.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -75,53 +75,52 @@ public class QQRedDotView extends View {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        Log.d("edison onLayout",getPivotX()+" "+getPivotY());
-        Log.d("edison onLayout","width: "+getWidth()+" "+"height: "+getHeight());
-        Log.d("edison onLayout","left: "+getLeft()+" "+"top: "+getTop()+" right: "+getRight()+" bottom: "+getBottom());
+        Log.d("edison onLayout", getPivotX() + " " + getPivotY());
+        Log.d("edison onLayout", "width: " + getWidth() + " " + "height: " + getHeight());
+        Log.d("edison onLayout", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.d("edison onSizeChanged",getPivotX()+" "+getPivotY());
-        Log.d("edison onSizeChanged","width: "+getWidth()+" "+"height: "+getHeight());
-        Log.d("edison onSizeChanged","left: "+getLeft()+" "+"top: "+getTop()+" right: "+getRight()+" bottom: "+getBottom());
-        dotRectF.set(0,0,getWidth(),getHeight());
-        touchRectF.set(getLeft(),getTop(),getRight(),getBottom());
+        Log.d("edison onSizeChanged", getPivotX() + " " + getPivotY());
+        Log.d("edison onSizeChanged", "width: " + getWidth() + " " + "height: " + getHeight());
+        Log.d("edison onSizeChanged", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
+        dotRectF.set(0, 0, getWidth(), getHeight());
+        touchRectF.set(getLeft(), getTop(), getRight(), getBottom());
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        Log.d("edison onMeasure",getPivotX()+" "+getPivotY());
-        Log.d("edison onMeasure","width: "+getWidth()+" "+"height: "+getHeight());
-        Log.d("edison onMeasure","left: "+getLeft()+" "+"top: "+getTop()+" right: "+getRight()+" bottom: "+getBottom());
+        Log.d("edison onMeasure", getPivotX() + " " + getPivotY());
+        Log.d("edison onMeasure", "width: " + getWidth() + " " + "height: " + getHeight());
+        Log.d("edison onMeasure", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.d("edison","onDraw");
-        canvas.drawRoundRect(dotRectF,12,12,dotPaint);
+        Log.d("edison", "onDraw");
+        canvas.drawRoundRect(dotRectF, 12, 12, dotPaint);
     }
 
-    float downX,downY,moveX,moveY,upX,upY,startX,startY;
+    float downX, downY, moveX, moveY, upX, upY, startX, startY;
     boolean isdragable = false;
-    long startTime,currentTime;
     boolean isFirst = true;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()){
+        switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 downX = event.getX();
                 downY = event.getY();
-                Log.d("edison action down","downX: "+downX+" downY: "+downY);
-                if(dotRectF.contains(downX,downY)){
+                Log.d("edison action down", "downX: " + downX + " downY: " + downY);
+                if (dotRectF.contains(downX, downY)) {
                     isdragable = true;
                     startX = event.getRawX();
                     startY = event.getRawY();
-                    if(isFirst) {
+                    if (isFirst) {
                         initX = startX;
                         initY = startY;
                         isFirst = false;
@@ -129,20 +128,20 @@ public class QQRedDotView extends View {
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if(isdragable){
+                if (isdragable) {
                     moveX = event.getRawX();
                     moveY = event.getRawY();
-                    animatorMove(moveX-initX,moveY-initY,startX-initX,startY-initY);
+                    animatorMove(moveX - initX, moveY - initY, startX - initX, startY - initY);
                     startX = moveX;
                     startY = moveY;
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                if(isdragable){
+                if (isdragable) {
                     isdragable = false;
                     upX = event.getRawX();
                     upY = event.getRawY();
-                    animatorMove(upX-initX,upY-initY,startX-initX,startY-initY);
+                    animatorMove(upX - initX, upY - initY, startX - initX, startY - initY);
                 }
                 break;
             default:
@@ -151,19 +150,19 @@ public class QQRedDotView extends View {
         return true;
     }
 
-    public RectF getDotRectF(){
+    public RectF getDotRectF() {
         return this.dotRectF;
     }
 
-    public void setDotRectF(float left,float top,float right,float bottom){
-        dotRectF.set(left,top,right,bottom);
+    public void setDotRectF(float left, float top, float right, float bottom) {
+        dotRectF.set(left, top, right, bottom);
     }
 
-    public void animatorMove(float toX,float toY,float oldX,float oldY){
-        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(this,"translationX",oldX,toX);
-        ObjectAnimator objectAnimator1 = ObjectAnimator.ofFloat(this,"translationY",oldY,toY);
+    public void animatorMove(float toX, float toY, float oldX, float oldY) {
+        ObjectAnimator objectAnimator = ObjectAnimator.ofFloat(this, "translationX", oldX, toX);
+        ObjectAnimator objectAnimator1 = ObjectAnimator.ofFloat(this, "translationY", oldY, toY);
         AnimatorSet animatorSet = new AnimatorSet();
-        animatorSet.playTogether(objectAnimator,objectAnimator1);
+        animatorSet.playTogether(objectAnimator, objectAnimator1);
         animatorSet.setDuration(40);
         animatorSet.start();
     }
