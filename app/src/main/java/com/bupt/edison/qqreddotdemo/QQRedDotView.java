@@ -174,8 +174,10 @@ public class QQRedDotView extends View {
         animatorSet.start();
     }
 
-    //属性动画,可以移动view,但是不能超过父布局的视图布局
-    //scrollTo scrollBy,只能移动view的内容,不能移动View
-    //实时绘制view,同样是只能移动view的内容,不能移动view.而且必须保证有一个足够大的画布
-    //requestLayout(),实时layout控件,但是拖动的时候有抖动
+    //正因为下面方法的种种局限,所以要实现全屏可拖动小红点,必须使用 WindowManager
+
+    //1.属性动画,可以移动view,但是不能超过父布局的视图布局
+    //2.scrollTo scrollBy,只能移动view的内容,不能移动View
+    //3.实时绘制view,同样是只能移动view的内容,不能移动view.而且必须保证有一个足够大的画布
+    //4.requestLayout(),实时layout控件,但是拖动的时候有抖动
 }
