@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="Hello World!"
         android:id="@+id/text"/>
-    <com.bupt.edison.qqreddotdemo.QQRedDotView
+    <com.bupt.edison.qqreddot.QQRedDotView
         android:layout_width="20dp"
         android:layout_height="15dp"
         android:layout_below="@id/text"

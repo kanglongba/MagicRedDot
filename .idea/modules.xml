@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/QQRedDotDemo.iml" filepath="$PROJECT_DIR$/QQRedDotDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/qqreddot/qqreddot.iml" filepath="$PROJECT_DIR$/qqreddot/qqreddot.iml" />
     </modules>
   </component>
 </project>
