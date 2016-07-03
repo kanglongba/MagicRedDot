@@ -1,4 +1,4 @@
-package com.bupt.edison.qqreddotdemo;
+package com.bupt.edison.qqreddot;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
