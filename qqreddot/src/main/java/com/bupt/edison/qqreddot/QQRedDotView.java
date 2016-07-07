@@ -1,7 +1,9 @@
 package com.bupt.edison.qqreddot;
 
+import android.animation.Animator;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -14,6 +16,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.OvershootInterpolator;
 
 /**
  * Created by edison on 16/6/30.
@@ -98,7 +101,6 @@ public class QQRedDotView extends View {
         dotRedius = 10;
         anchorRedius = 8;
 
-
         unreadCount = 119;
 
         dotRectF = new RectF();
@@ -161,11 +163,11 @@ public class QQRedDotView extends View {
         super.onDraw(canvas);
         Log.d("edison", "onDraw");
         if(unreadCount>0) {
-            drawDot(canvas); //画红点
             if(isdragable) {
                 drawRubber(canvas);
                 drawAnchorDot(canvas);
             }
+            drawDot(canvas); //画红点
         }
     }
 
@@ -262,16 +264,19 @@ public class QQRedDotView extends View {
 //                    startY = moveY;
                     moveX = event.getX();
                     moveY = event.getY();
-                    computePosition(moveX,moveY);
+                    computePosition(centerX2StartX(moveX), centerY2StartY(moveY));
                     invalidate();
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 if (isdragable) {
-                    isdragable = false;
+//                    isdragable = false;
 //                    upX = event.getRawX();
 //                    upY = event.getRawY();
 //                    animatorMove(upX - initX, upY - initY, startX - initX, startY - initY);
+                    upX = event.getX();
+                    upY = event.getY();
+                    animatorBackToAnchorPoint(upX,upY);
                 }
                 break;
             default:
@@ -376,5 +381,57 @@ public class QQRedDotView extends View {
         rightDownPointF.set(initX+width,initY+Utils.dp2px(context,dotRedius)+mDistance);
     }
 
+    //红点中心点坐标转换为左上角坐标
+    private float centerX2StartX(float centerX){
+        return centerX - dotRectF.width()/2;
+    }
+    //红点中心点坐标转换为左上角坐标
+    private float centerY2StartY(float centerY){
+        return centerY - dotRectF.height()/2;
+    }
 
+    //回到初始位置,带有回弹效果
+    private void animatorBackToAnchorPoint(final float upX, final float upY){
+        ValueAnimator animatorX = ValueAnimator.ofFloat(upX,anchorPoint.x);
+        animatorX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float fraction = animation.getAnimatedFraction();
+                float currentX = (float)animation.getAnimatedValue();
+                float currentY = (anchorPoint.y-upY)*fraction+upY;
+                moveX = currentX;
+                moveY = currentY;
+                computePosition(centerX2StartX(currentX),centerY2StartY(currentY));
+                invalidate();
+            }
+        });
+        animatorX.addListener(animatorListener);
+        //这个回弹效果不够机智,将来自顶一个Interpolator优化一下
+        animatorX.setInterpolator(new OvershootInterpolator(4.0f));
+//        animatorX.setInterpolator(new BounceInterpolator());
+        animatorX.setDuration(500);
+        animatorX.start();
+    }
+
+    Animator.AnimatorListener animatorListener = new Animator.AnimatorListener(){
+        @Override
+        public void onAnimationStart(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            isdragable = false;
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+
+        }
+
+        @Override
+        public void onAnimationRepeat(Animator animation) {
+
+        }
+    };
 }
