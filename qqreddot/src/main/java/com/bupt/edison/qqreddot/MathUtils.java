@@ -27,6 +27,7 @@ public class MathUtils {
      * @param x2
      * @param y2
      * @return
+     * 把中点当成贝塞尔曲线的控制点
      */
     public static PointF getMiddlePoint(float x1,float y1,float x2,float y2){
         PointF pointF = new PointF((x1+x2)/2.0f,(y1+y2)/2.0f);
@@ -49,6 +50,7 @@ public class MathUtils {
     }
 
     /**
+     * 计算拖拽时,贝塞尔曲线的四个数据点
      * http://isux.tencent.com/wp-content/uploads/2014/10/201410171340142.png
      * center2是拖拽点,center1是固定点.一般radius2要大于radius1.
      *
