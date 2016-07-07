@@ -15,8 +15,10 @@ import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 
@@ -237,7 +239,7 @@ public class QQRedDotView extends View {
         canvas.drawPath(rubberPath,rubberPaint);
     }
 
-    float downX, downY, moveX, moveY, upX, upY, startX, startY;
+    float downX, downY, moveX, moveY, upX, upY, upRawX, upRawY;
     boolean isdragable = false;
     boolean isInPullScale = true; //是否在拉力范围内
     boolean isDimiss = false;
@@ -252,22 +254,10 @@ public class QQRedDotView extends View {
                 Log.d("edison action down", "downX: " + downX + " downY: " + downY);
                 if (dotRectF.contains(downX, downY)) {
                     isdragable = true;
-//                    startX = event.getRawX();
-//                    startY = event.getRawY();
-//                    if (isFirst) {
-//                        initX = startX;
-//                        initY = startY;
-//                        isFirst = false;
-//                    }
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (isdragable) {
-//                    moveX = event.getRawX();
-//                    moveY = event.getRawY();
-//                    animatorMove(moveX - initX, moveY - initY, startX - initX, startY - initY);
-//                    startX = moveX;
-//                    startY = moveY;
                     moveX = event.getX();
                     moveY = event.getY();
                     if(MathUtils.getDistanceBetweenPoints(moveX,moveY,anchorPoint.x,anchorPoint.y)<=dismissRedius){
@@ -283,16 +273,14 @@ public class QQRedDotView extends View {
                 break;
             case MotionEvent.ACTION_UP:
                 if (isdragable && isInPullScale) {
-//                    isdragable = false;
-//                    upX = event.getRawX();
-//                    upY = event.getRawY();
-//                    animatorMove(upX - initX, upY - initY, startX - initX, startY - initY);
                     upX = event.getX();
                     upY = event.getY();
                     animatorBackToAnchorPoint(upX,upY);
                 }else if(isdragable && !isInPullScale) {
                     upX = event.getX();
                     upY = event.getY();
+                    upRawX = event.getRawX();
+                    upRawY = event.getRawY();
                     if (MathUtils.getDistanceBetweenPoints(upX, upY, anchorPoint.x, anchorPoint.y) <= dismissRedius) {
                         animatorBackToAnchorPoint(upX, upY);
                     }else{
@@ -419,11 +407,33 @@ public class QQRedDotView extends View {
         return centerY - dotRectF.height()/2;
     }
 
+    //小红点的消失动画
     private void animationDismiss(){
-        ImageView imageView = new ImageView(context);
-        AnimationDrawable animationDrawable = (AnimationDrawable)context.getResources().getDrawable(R.drawable.dismiss_anim);
-        imageView.setImageDrawable(animationDrawable);
+        final ImageView imageView = new ImageView(context);
+        imageView.setImageResource(R.drawable.dismiss_anim);
+        final AnimationDrawable animationDrawable = (AnimationDrawable)imageView.getDrawable();
+        long duration = 500;
+        int width = imageView.getDrawable().getIntrinsicWidth();
+        int height = imageView.getDrawable().getIntrinsicHeight();
+        final WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
+        layoutParams.gravity = Gravity.TOP|Gravity.LEFT;
+        layoutParams.x = (int)(upRawX - width/2);
+        layoutParams.y = (int)(upRawY - height/2);
+        Log.d("edison LayoutParams","x: "+upRawX);
+        Log.d("edison LayoutParams","y: "+upRawY);
+        layoutParams.width=WindowManager.LayoutParams.WRAP_CONTENT;
+        layoutParams.height=WindowManager.LayoutParams.WRAP_CONTENT;
+        windowManager.addView(imageView,layoutParams);
         animationDrawable.start();
+        imageView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                animationDrawable.stop();
+                imageView.clearAnimation();
+                windowManager.removeView(imageView);
+            }
+        },duration);
         Log.d("edison","dismiss reddot");
     }
 
