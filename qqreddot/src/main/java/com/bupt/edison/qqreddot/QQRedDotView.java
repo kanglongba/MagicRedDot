@@ -11,12 +11,14 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.RectF;
+import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
+import android.widget.ImageView;
 
 /**
  * Created by edison on 16/6/30.
@@ -48,6 +50,7 @@ public class QQRedDotView extends View {
     Path redDotPath;//红点的贝塞尔曲线path
     Path rubberPath;//皮筋的贝塞尔取现path
     PointF anchorPoint;//锚点
+    float initAnchorRedius;
 
     public QQRedDotView(Context context) {
         super(context);
@@ -97,9 +100,10 @@ public class QQRedDotView extends View {
         initCenterX = 0;
         initCenterY = 0;
 
-        dismissRedius = 35;
+        dismissRedius = Utils.dp2px(context,150);
         dotRedius = 10;
         anchorRedius = 8;
+        initAnchorRedius = 8;
 
         unreadCount = 119;
 
@@ -162,8 +166,8 @@ public class QQRedDotView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Log.d("edison", "onDraw");
-        if(unreadCount>0) {
-            if(isdragable) {
+        if(unreadCount>0 && !isDimiss) {
+            if(isdragable && isInPullScale && isFirstOutPullScale) {
                 drawRubber(canvas);
                 drawAnchorDot(canvas);
             }
@@ -235,7 +239,9 @@ public class QQRedDotView extends View {
 
     float downX, downY, moveX, moveY, upX, upY, startX, startY;
     boolean isdragable = false;
-    boolean isFirst = true;
+    boolean isInPullScale = true; //是否在拉力范围内
+    boolean isDimiss = false;
+    boolean isFirstOutPullScale = true;
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -264,12 +270,19 @@ public class QQRedDotView extends View {
 //                    startY = moveY;
                     moveX = event.getX();
                     moveY = event.getY();
+                    if(MathUtils.getDistanceBetweenPoints(moveX,moveY,anchorPoint.x,anchorPoint.y)<=dismissRedius){
+                        isInPullScale = true;
+                        updateAnchorDotRedius(moveX,moveY);
+                    }else{
+                        isFirstOutPullScale = false;
+                        isInPullScale = false;
+                    }
                     computePosition(centerX2StartX(moveX), centerY2StartY(moveY));
                     invalidate();
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                if (isdragable) {
+                if (isdragable && isInPullScale) {
 //                    isdragable = false;
 //                    upX = event.getRawX();
 //                    upY = event.getRawY();
@@ -277,12 +290,28 @@ public class QQRedDotView extends View {
                     upX = event.getX();
                     upY = event.getY();
                     animatorBackToAnchorPoint(upX,upY);
+                }else if(isdragable && !isInPullScale) {
+                    upX = event.getX();
+                    upY = event.getY();
+                    if (MathUtils.getDistanceBetweenPoints(upX, upY, anchorPoint.x, anchorPoint.y) <= dismissRedius) {
+                        animatorBackToAnchorPoint(upX, upY);
+                    }else{
+                        //消失
+                        isDimiss = true;
+                        invalidate();
+                        animationDismiss();
+                    }
                 }
                 break;
             default:
                 break;
         }
         return true;
+    }
+
+    private void updateAnchorDotRedius(float moveX,float moveY){
+        float distance = MathUtils.getDistanceBetweenPoints(moveX,moveY,anchorPoint.x,anchorPoint.y);
+        anchorRedius =(int) (initAnchorRedius - (distance/dismissRedius)*(initAnchorRedius-1));
     }
 
     /**
@@ -390,6 +419,14 @@ public class QQRedDotView extends View {
         return centerY - dotRectF.height()/2;
     }
 
+    private void animationDismiss(){
+        ImageView imageView = new ImageView(context);
+        AnimationDrawable animationDrawable = (AnimationDrawable)context.getResources().getDrawable(R.drawable.dismiss_anim);
+        imageView.setImageDrawable(animationDrawable);
+        animationDrawable.start();
+        Log.d("edison","dismiss reddot");
+    }
+
     //回到初始位置,带有回弹效果
     private void animatorBackToAnchorPoint(final float upX, final float upY){
         ValueAnimator animatorX = ValueAnimator.ofFloat(upX,anchorPoint.x);
@@ -422,6 +459,9 @@ public class QQRedDotView extends View {
         @Override
         public void onAnimationEnd(Animator animation) {
             isdragable = false;
+            isInPullScale = true;
+            isFirstOutPullScale = true;
+            isDimiss = false;
         }
 
         @Override
