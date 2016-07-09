@@ -9,6 +9,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PixelFormat;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.AnimationDrawable;
@@ -19,6 +20,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 
@@ -32,7 +34,7 @@ public class QQRedDotView extends View {
     Paint anchorDotPaint;//錨点画笔
     Paint messageCountPaint;//未读消息数的画笔
     float initX, initY;//红点初始时的位置
-    float initCenterX,initCenterY;//红点初始时的中心位置
+    float initCenterX, initCenterY;//红点初始时的中心位置
     int dismissRedius;//消失的距离
     int dotRedius;//红点的半径
     int anchorRedius;//锚点的半径
@@ -45,10 +47,9 @@ public class QQRedDotView extends View {
     float mDistance;
 
     //用六个数据点,八个控制点画圆.n = 4;
-    PointF upPointFLeft, upPointFRight, downPointFLeft,downPointRight,leftPointF,rightPointF; //数据点
+    PointF upPointFLeft, upPointFRight, downPointFLeft, downPointRight, leftPointF, rightPointF; //数据点
     //八个控制点
-    PointF upLeftPointF,upRightPointF,downLeftPointF,downRightPointF
-            , leftUpPointF, leftDownPointF, rightUpPointF, rightDownPointF; //控制点
+    PointF upLeftPointF, upRightPointF, downLeftPointF, downRightPointF, leftUpPointF, leftDownPointF, rightUpPointF, rightDownPointF; //控制点
     Path redDotPath;//红点的贝塞尔曲线path
     Path rubberPath;//皮筋的贝塞尔取现path
     PointF anchorPoint;//锚点
@@ -95,14 +96,14 @@ public class QQRedDotView extends View {
         messageCountPaint.setAntiAlias(true);
         messageCountPaint.setStyle(Paint.Style.FILL_AND_STROKE);
         messageCountPaint.setStrokeWidth(1);
-        messageCountPaint.setTextSize(Utils.sp2px(context,12));
+        messageCountPaint.setTextSize(Utils.sp2px(context, 12));
 
         initX = 0;
         initY = 0;
         initCenterX = 0;
         initCenterY = 0;
 
-        dismissRedius = Utils.dp2px(context,150);
+        dismissRedius = Utils.dp2px(context, 150);
         dotRedius = 10;
         anchorRedius = 8;
         initAnchorRedius = 8;
@@ -111,7 +112,7 @@ public class QQRedDotView extends View {
 
         dotRectF = new RectF();
 
-        mDistance = constant*Utils.dp2px(context,dotRedius);
+        mDistance = constant * Utils.dp2px(context, dotRedius);
 
         upPointFLeft = new PointF();
         downPointFLeft = new PointF();
@@ -138,8 +139,8 @@ public class QQRedDotView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        Log.d("edison onMeasure", "pivotX: "+getPivotX() + " pivotY: " + getPivotY());
-        Log.d("edison onMeasure", "X: "+getX() + " Y: " + getY());
+        Log.d("edison onMeasure", "pivotX: " + getPivotX() + " pivotY: " + getPivotY());
+        Log.d("edison onMeasure", "X: " + getX() + " Y: " + getY());
         Log.d("edison onMeasure", "width: " + getWidth() + " " + "height: " + getHeight());
         Log.d("edison onMeasure", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
     }
@@ -147,8 +148,8 @@ public class QQRedDotView extends View {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
-        Log.d("edison onLayout", "pivotX: "+getPivotX() + " pivotY: " + getPivotY());
-        Log.d("edison onLayout", "X: "+getX() + " Y: " + getY());
+        Log.d("edison onLayout", "pivotX: " + getPivotX() + " pivotY: " + getPivotY());
+        Log.d("edison onLayout", "X: " + getX() + " Y: " + getY());
         Log.d("edison onLayout", "width: " + getWidth() + " " + "height: " + getHeight());
         Log.d("edison onLayout", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
     }
@@ -156,20 +157,20 @@ public class QQRedDotView extends View {
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.d("edison onSizeChanged", "pivotX: "+getPivotX() + " pivotY: " + getPivotY());
-        Log.d("edison onSizeChanged", "X: "+getX() + " Y: " + getY());
+        Log.d("edison onSizeChanged", "pivotX: " + getPivotX() + " pivotY: " + getPivotY());
+        Log.d("edison onSizeChanged", "X: " + getX() + " Y: " + getY());
         Log.d("edison onSizeChanged", "width: " + getWidth() + " " + "height: " + getHeight());
         Log.d("edison onSizeChanged", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
         computePosition();
-        anchorPoint.set(initCenterX,initCenterY);
+        anchorPoint.set(initCenterX, initCenterY);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Log.d("edison", "onDraw");
-        if(unreadCount>0 && !isDimiss) {
-            if(isdragable && isInPullScale && isFirstOutPullScale) {
+        if (unreadCount > 0 && !isDimiss) {
+            if (isdragable && isInPullScale && isFirstOutPullScale) {
                 drawRubber(canvas);
                 drawAnchorDot(canvas);
             }
@@ -177,66 +178,68 @@ public class QQRedDotView extends View {
         }
     }
 
-    private void drawDot(Canvas canvas){
-        if(unreadCount>0 && unreadCount<=9){
-            canvas.drawCircle(initCenterX,initCenterY,Utils.dp2px(context,dotRedius),dotPaint);
-        }else if(unreadCount>9){ //用贝塞尔取现画拉伸的红点
+    private void drawDot(Canvas canvas) {
+        if (unreadCount > 0 && unreadCount <= 9) {
+            canvas.drawCircle(initCenterX, initCenterY, Utils.dp2px(context, dotRedius), dotPaint);
+        } else if (unreadCount > 9) { //用贝塞尔取现画拉伸的红点
             redDotPath.reset();
-            redDotPath.moveTo(upPointFLeft.x,upPointFLeft.y);
-            redDotPath.lineTo(upPointFRight.x,upPointFRight.y);
-            redDotPath.cubicTo(upRightPointF.x,upRightPointF.y,rightUpPointF.x,rightUpPointF.y,rightPointF.x,rightPointF.y);
-            redDotPath.cubicTo(rightDownPointF.x,rightDownPointF.y,downRightPointF.x,downRightPointF.y,downPointRight.x,downPointRight.y);
-            redDotPath.lineTo(downPointFLeft.x,downPointFLeft.y);
-            redDotPath.cubicTo(downLeftPointF.x,downLeftPointF.y,leftDownPointF.x,leftDownPointF.y,leftPointF.x,leftPointF.y);
-            redDotPath.cubicTo(leftUpPointF.x,leftUpPointF.y,upLeftPointF.x,upLeftPointF.y,upPointFLeft.x,upPointFLeft.y);
+            redDotPath.moveTo(upPointFLeft.x, upPointFLeft.y);
+            redDotPath.lineTo(upPointFRight.x, upPointFRight.y);
+            redDotPath.cubicTo(upRightPointF.x, upRightPointF.y, rightUpPointF.x, rightUpPointF.y, rightPointF.x, rightPointF.y);
+            redDotPath.cubicTo(rightDownPointF.x, rightDownPointF.y, downRightPointF.x, downRightPointF.y, downPointRight.x, downPointRight.y);
+            redDotPath.lineTo(downPointFLeft.x, downPointFLeft.y);
+            redDotPath.cubicTo(downLeftPointF.x, downLeftPointF.y, leftDownPointF.x, leftDownPointF.y, leftPointF.x, leftPointF.y);
+            redDotPath.cubicTo(leftUpPointF.x, leftUpPointF.y, upLeftPointF.x, upLeftPointF.y, upPointFLeft.x, upPointFLeft.y);
 
-            canvas.drawPath(redDotPath,dotPaint);
+            canvas.drawPath(redDotPath, dotPaint);
         }
 
         drawMsgCount(canvas);
     }
 
-    private void drawMsgCount(Canvas canvas){
+    private void drawMsgCount(Canvas canvas) {
         String count = "";
-        if(unreadCount>0 && unreadCount<=99){
+        if (unreadCount > 0 && unreadCount <= 99) {
             count = String.valueOf(unreadCount);
-        }else if(unreadCount>99){
+        } else if (unreadCount > 99) {
             count = "+99";
         }
-        if(!TextUtils.isEmpty(count)){
-            int countWidth = Utils.computeStringWidth(messageCountPaint,count);
-            int countHeight = Utils.computeStringHeight(messageCountPaint,count);
-            canvas.drawText(count,initCenterX-countWidth/2,initCenterY+countHeight/2,messageCountPaint);
+        if (!TextUtils.isEmpty(count)) {
+            int countWidth = Utils.computeStringWidth(messageCountPaint, count);
+            int countHeight = Utils.computeStringHeight(messageCountPaint, count);
+            canvas.drawText(count, initCenterX - countWidth / 2, initCenterY + countHeight / 2, messageCountPaint);
         }
 
     }
 
     /**
      * 拖拽时,绘制一个锚点
+     *
      * @param canvas
      */
-    private void drawAnchorDot(Canvas canvas){
-        canvas.drawCircle(anchorPoint.x,anchorPoint.y,Utils.dp2px(context,anchorRedius),anchorDotPaint);
+    private void drawAnchorDot(Canvas canvas) {
+        canvas.drawCircle(anchorPoint.x, anchorPoint.y, Utils.dp2px(context, anchorRedius), anchorDotPaint);
     }
 
     /**
-     *拖拽时,绘制一条橡皮筋,连接红点与锚点
+     * 拖拽时,绘制一条橡皮筋,连接红点与锚点
+     *
      * @param canvas
      */
-    private void drawRubber(Canvas canvas){
-        PointF[] pointFs = MathUtils.getTangentPoint(anchorPoint.x,anchorPoint.y,Utils.dp2px(context,anchorRedius),moveX,moveY,Utils.dp2px(context,dotRedius));
-        PointF controlPointF = MathUtils.getMiddlePoint(anchorPoint.x,anchorPoint.y,moveX,moveY);
+    private void drawRubber(Canvas canvas) {
+        PointF[] pointFs = MathUtils.getTangentPoint(anchorPoint.x, anchorPoint.y, Utils.dp2px(context, anchorRedius), moveX, moveY, Utils.dp2px(context, dotRedius));
+        PointF controlPointF = MathUtils.getMiddlePoint(anchorPoint.x, anchorPoint.y, moveX, moveY);
         //利用贝塞尔取现画出皮筋
         rubberPath.reset();
-        rubberPath.moveTo(anchorPoint.x,anchorPoint.y);
-        rubberPath.lineTo(pointFs[0].x,pointFs[0].y);
-        rubberPath.quadTo(controlPointF.x,controlPointF.y,pointFs[1].x,pointFs[1].y);
-        rubberPath.lineTo(moveX,moveY);
-        rubberPath.lineTo(pointFs[2].x,pointFs[2].y);
-        rubberPath.quadTo(controlPointF.x,controlPointF.y,pointFs[3].x,pointFs[3].y);
-        rubberPath.lineTo(anchorPoint.x,anchorPoint.y);
+        rubberPath.moveTo(anchorPoint.x, anchorPoint.y);
+        rubberPath.lineTo(pointFs[0].x, pointFs[0].y);
+        rubberPath.quadTo(controlPointF.x, controlPointF.y, pointFs[1].x, pointFs[1].y);
+        rubberPath.lineTo(moveX, moveY);
+        rubberPath.lineTo(pointFs[2].x, pointFs[2].y);
+        rubberPath.quadTo(controlPointF.x, controlPointF.y, pointFs[3].x, pointFs[3].y);
+        rubberPath.lineTo(anchorPoint.x, anchorPoint.y);
 
-        canvas.drawPath(rubberPath,rubberPaint);
+        canvas.drawPath(rubberPath, rubberPaint);
     }
 
     float downX, downY, moveX, moveY, upX, upY, upRawX, upRawY;
@@ -260,10 +263,10 @@ public class QQRedDotView extends View {
                 if (isdragable) {
                     moveX = event.getX();
                     moveY = event.getY();
-                    if(MathUtils.getDistanceBetweenPoints(moveX,moveY,anchorPoint.x,anchorPoint.y)<=dismissRedius){
+                    if (MathUtils.getDistanceBetweenPoints(moveX, moveY, anchorPoint.x, anchorPoint.y) <= dismissRedius) {
                         isInPullScale = true;
-                        updateAnchorDotRedius(moveX,moveY);
-                    }else{
+                        updateAnchorDotRedius(moveX, moveY);
+                    } else {
                         isFirstOutPullScale = false;
                         isInPullScale = false;
                     }
@@ -275,20 +278,22 @@ public class QQRedDotView extends View {
                 if (isdragable && isInPullScale) {
                     upX = event.getX();
                     upY = event.getY();
-                    animatorBackToAnchorPoint(upX,upY);
-                }else if(isdragable && !isInPullScale) {
+                    if (isFirstOutPullScale) {
+                        animatorBackToAnchorPoint(upX, upY);
+                    } else {
+                        simpleBackToAnchorPoint(upX, upY);
+                    }
+                } else if (isdragable && !isInPullScale) {
                     upX = event.getX();
                     upY = event.getY();
                     upRawX = event.getRawX();
                     upRawY = event.getRawY();
-                    if (MathUtils.getDistanceBetweenPoints(upX, upY, anchorPoint.x, anchorPoint.y) <= dismissRedius) {
-                        animatorBackToAnchorPoint(upX, upY);
-                    }else{
-                        //消失
-                        isDimiss = true;
-                        invalidate();
-                        animationDismiss();
-                    }
+
+                    //消失
+                    isDimiss = true;
+                    invalidate();
+                    animationDismiss();
+
                 }
                 break;
             default:
@@ -297,13 +302,14 @@ public class QQRedDotView extends View {
         return true;
     }
 
-    private void updateAnchorDotRedius(float moveX,float moveY){
-        float distance = MathUtils.getDistanceBetweenPoints(moveX,moveY,anchorPoint.x,anchorPoint.y);
-        anchorRedius =(int) (initAnchorRedius - (distance/dismissRedius)*(initAnchorRedius-1));
+    private void updateAnchorDotRedius(float moveX, float moveY) {
+        float distance = MathUtils.getDistanceBetweenPoints(moveX, moveY, anchorPoint.x, anchorPoint.y);
+        anchorRedius = (int) (initAnchorRedius - (distance / dismissRedius) * (initAnchorRedius - 1));
     }
 
     /**
      * 利用属性动画拖动view
+     *
      * @param toX
      * @param toY
      * @param oldX
@@ -329,9 +335,10 @@ public class QQRedDotView extends View {
     /**
      * 更新未读消息的数量
      */
-    public interface OnUpdateMessageCountListner{
+    public interface OnUpdateMessageCountListner {
         /**
          * 更新未读消息的数量
+         *
          * @return
          */
         public int onUpdateMessageCount();
@@ -339,7 +346,7 @@ public class QQRedDotView extends View {
 
     OnUpdateMessageCountListner onUpdateMessageCountListner;
 
-    public void setOnUpdateMessageCountListner(OnUpdateMessageCountListner onUpdateMessageCountListner){
+    public void setOnUpdateMessageCountListner(OnUpdateMessageCountListner onUpdateMessageCountListner) {
         this.onUpdateMessageCountListner = onUpdateMessageCountListner;
     }
 
@@ -348,83 +355,86 @@ public class QQRedDotView extends View {
     /**
      * 计算红点位置
      */
-    private void computePosition(){
-        computePosition(getWidth()/2,getHeight()/2);
+    private void computePosition() {
+        computePosition(getWidth() / 2, getHeight() / 2);
     }
 
-    private void computePosition(float x,float y){
+    private void computePosition(float x, float y) {
         initX = x; //如果从(0,0)开始,小红点会有一小部分被切掉,所以前进两个像素
         initY = y;
-        if(unreadCount >0 && unreadCount<=9) {
+        if (unreadCount > 0 && unreadCount <= 9) {
             initCenterX = initX + Utils.dp2px(context, dotRedius); //红点长度为一个半径
             initCenterY = initY + Utils.dp2px(context, dotRedius);
-            dotRectF.set(initX,initY,initX+Utils.dp2px(context, 2*dotRedius),initY+Utils.dp2px(context,2*dotRedius));
-        }else if(unreadCount>9 && unreadCount<=99){
-            initCenterX = initX + Utils.dp2px(context, dotRedius*6/5); //红点的长度加2/5个半径
+            dotRectF.set(initX, initY, initX + Utils.dp2px(context, 2 * dotRedius), initY + Utils.dp2px(context, 2 * dotRedius));
+        } else if (unreadCount > 9 && unreadCount <= 99) {
+            initCenterX = initX + Utils.dp2px(context, dotRedius * 6 / 5); //红点的长度加2/5个半径
             initCenterY = initY + Utils.dp2px(context, dotRedius);
-            dotRectF.set(initX,initY,initX+Utils.dp2px(context, 12*dotRedius/5),initY+Utils.dp2px(context,2*dotRedius));
-            computeRedDotBezierPoint(Utils.dp2px(context, 12*dotRedius/5),Utils.dp2px(context,2*dotRedius));
-        }else if (unreadCount>99){
-            initCenterX = initX + Utils.dp2px(context, dotRedius*3/2); //红点的长度加一个半径
+            dotRectF.set(initX, initY, initX + Utils.dp2px(context, 12 * dotRedius / 5), initY + Utils.dp2px(context, 2 * dotRedius));
+            computeRedDotBezierPoint(Utils.dp2px(context, 12 * dotRedius / 5), Utils.dp2px(context, 2 * dotRedius));
+        } else if (unreadCount > 99) {
+            initCenterX = initX + Utils.dp2px(context, dotRedius * 3 / 2); //红点的长度加一个半径
             initCenterY = initY + Utils.dp2px(context, dotRedius);
-            dotRectF.set(initX,initY,initX+Utils.dp2px(context, 3*dotRedius),initY+Utils.dp2px(context,2*dotRedius));
-            computeRedDotBezierPoint(Utils.dp2px(context, 3*dotRedius),Utils.dp2px(context,2*dotRedius));
+            dotRectF.set(initX, initY, initX + Utils.dp2px(context, 3 * dotRedius), initY + Utils.dp2px(context, 2 * dotRedius));
+            computeRedDotBezierPoint(Utils.dp2px(context, 3 * dotRedius), Utils.dp2px(context, 2 * dotRedius));
         }
     }
 
     /**
      * 计算红点的数据点和控制点
+     *
      * @param width
      * @param height
      */
-    private void computeRedDotBezierPoint(float width,float height){
+    private void computeRedDotBezierPoint(float width, float height) {
         //数据点
-        upPointFLeft.set(initX+Utils.dp2px(context, dotRedius),initY);
-        leftPointF.set(initX,initY+Utils.dp2px(context,dotRedius));
-        downPointFLeft.set(initX+Utils.dp2px(context,dotRedius),initY+height);
+        upPointFLeft.set(initX + Utils.dp2px(context, dotRedius), initY);
+        leftPointF.set(initX, initY + Utils.dp2px(context, dotRedius));
+        downPointFLeft.set(initX + Utils.dp2px(context, dotRedius), initY + height);
 
-        upPointFRight.set(initX+width-Utils.dp2px(context,dotRedius),initY);
-        rightPointF.set(initX+width,initY+Utils.dp2px(context,dotRedius));
-        downPointRight.set(initX+width-Utils.dp2px(context,dotRedius),initY+height);
+        upPointFRight.set(initX + width - Utils.dp2px(context, dotRedius), initY);
+        rightPointF.set(initX + width, initY + Utils.dp2px(context, dotRedius));
+        downPointRight.set(initX + width - Utils.dp2px(context, dotRedius), initY + height);
 
         //控制点
-        upLeftPointF.set(initX+Utils.dp2px(context,dotRedius)-mDistance,initY);
-        upRightPointF.set(initX+width-Utils.dp2px(context,dotRedius)+mDistance,initY);
-        downLeftPointF.set(initX+Utils.dp2px(context,dotRedius)-mDistance,initY+height);
-        downRightPointF.set(initX+width-Utils.dp2px(context,dotRedius)+mDistance,initY+height);
-        leftUpPointF.set(initX,initY+Utils.dp2px(context,dotRedius)-mDistance);
-        leftDownPointF.set(initX,initY+Utils.dp2px(context,dotRedius)+mDistance);
-        rightUpPointF.set(initX+width,initY+Utils.dp2px(context,dotRedius)-mDistance);
-        rightDownPointF.set(initX+width,initY+Utils.dp2px(context,dotRedius)+mDistance);
+        upLeftPointF.set(initX + Utils.dp2px(context, dotRedius) - mDistance, initY);
+        upRightPointF.set(initX + width - Utils.dp2px(context, dotRedius) + mDistance, initY);
+        downLeftPointF.set(initX + Utils.dp2px(context, dotRedius) - mDistance, initY + height);
+        downRightPointF.set(initX + width - Utils.dp2px(context, dotRedius) + mDistance, initY + height);
+        leftUpPointF.set(initX, initY + Utils.dp2px(context, dotRedius) - mDistance);
+        leftDownPointF.set(initX, initY + Utils.dp2px(context, dotRedius) + mDistance);
+        rightUpPointF.set(initX + width, initY + Utils.dp2px(context, dotRedius) - mDistance);
+        rightDownPointF.set(initX + width, initY + Utils.dp2px(context, dotRedius) + mDistance);
     }
 
     //红点中心点坐标转换为左上角坐标
-    private float centerX2StartX(float centerX){
-        return centerX - dotRectF.width()/2;
+    private float centerX2StartX(float centerX) {
+        return centerX - dotRectF.width() / 2;
     }
+
     //红点中心点坐标转换为左上角坐标
-    private float centerY2StartY(float centerY){
-        return centerY - dotRectF.height()/2;
+    private float centerY2StartY(float centerY) {
+        return centerY - dotRectF.height() / 2;
     }
 
     //小红点的消失动画
-    private void animationDismiss(){
+    private void animationDismiss() {
         final ImageView imageView = new ImageView(context);
         imageView.setImageResource(R.drawable.dismiss_anim);
-        final AnimationDrawable animationDrawable = (AnimationDrawable)imageView.getDrawable();
+        final AnimationDrawable animationDrawable = (AnimationDrawable) imageView.getDrawable();
         long duration = 500;
         int width = imageView.getDrawable().getIntrinsicWidth();
         int height = imageView.getDrawable().getIntrinsicHeight();
-        final WindowManager windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        final WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-        layoutParams.gravity = Gravity.TOP|Gravity.LEFT;
-        layoutParams.x = (int)(upRawX - width/2);
-        layoutParams.y = (int)(upRawY - height/2);
-        Log.d("edison LayoutParams","x: "+upRawX);
-        Log.d("edison LayoutParams","y: "+upRawY);
-        layoutParams.width=WindowManager.LayoutParams.WRAP_CONTENT;
-        layoutParams.height=WindowManager.LayoutParams.WRAP_CONTENT;
-        windowManager.addView(imageView,layoutParams);
+        layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
+        layoutParams.format = PixelFormat.RGBA_8888;
+        layoutParams.x = (int) (upRawX - width / 2);
+        layoutParams.y = (int) (upRawY - height / 2);
+        Log.d("edison LayoutParams", "x: " + upRawX);
+        Log.d("edison LayoutParams", "y: " + upRawY);
+        layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        windowManager.addView(imageView, layoutParams);
         animationDrawable.start();
         imageView.postDelayed(new Runnable() {
             @Override
@@ -433,22 +443,44 @@ public class QQRedDotView extends View {
                 imageView.clearAnimation();
                 windowManager.removeView(imageView);
             }
-        },duration);
-        Log.d("edison","dismiss reddot");
+        }, duration);
+        Log.d("edison", "dismiss reddot");
     }
 
-    //回到初始位置,带有回弹效果
-    private void animatorBackToAnchorPoint(final float upX, final float upY){
-        ValueAnimator animatorX = ValueAnimator.ofFloat(upX,anchorPoint.x);
+    //简单的复位动画,没有回弹效果.从消失区域回到复原区域时调用
+    private void simpleBackToAnchorPoint(final float upX, final float upY) {
+        ValueAnimator animatorX = ValueAnimator.ofFloat(upX, anchorPoint.x);
         animatorX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float fraction = animation.getAnimatedFraction();
-                float currentX = (float)animation.getAnimatedValue();
-                float currentY = (anchorPoint.y-upY)*fraction+upY;
+                float currentX = (float) animation.getAnimatedValue();
+                float currentY = (anchorPoint.y - upY) * fraction + upY;
                 moveX = currentX;
                 moveY = currentY;
-                computePosition(centerX2StartX(currentX),centerY2StartY(currentY));
+                computePosition(centerX2StartX(currentX), centerY2StartY(currentY));
+                invalidate();
+            }
+        });
+        animatorX.addListener(animatorListener);
+        //不需要回弹效果,直接使用线性插值器
+        animatorX.setInterpolator(new LinearInterpolator());
+        animatorX.setDuration(200);
+        animatorX.start();
+    }
+
+    //回到初始位置,带有回弹效果
+    private void animatorBackToAnchorPoint(final float upX, final float upY) {
+        ValueAnimator animatorX = ValueAnimator.ofFloat(upX, anchorPoint.x);
+        animatorX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                float fraction = animation.getAnimatedFraction();
+                float currentX = (float) animation.getAnimatedValue();
+                float currentY = (anchorPoint.y - upY) * fraction + upY;
+                moveX = currentX;
+                moveY = currentY;
+                computePosition(centerX2StartX(currentX), centerY2StartY(currentY));
                 invalidate();
             }
         });
@@ -460,7 +492,7 @@ public class QQRedDotView extends View {
         animatorX.start();
     }
 
-    Animator.AnimatorListener animatorListener = new Animator.AnimatorListener(){
+    Animator.AnimatorListener animatorListener = new Animator.AnimatorListener() {
         @Override
         public void onAnimationStart(Animator animation) {
 
