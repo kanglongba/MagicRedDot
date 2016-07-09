@@ -6,6 +6,7 @@ import android.graphics.Rect;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.View;
 
 /**
  * Created by edison on 16/7/3.
@@ -37,6 +38,17 @@ public class Utils {
             return (int)spValue;
         }
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, spValue, context.getResources().getDisplayMetrics());
+    }
+
+    /**
+     * 获取状态栏的高度
+     * @param view
+     * @return
+     */
+    public static int getStatusBarHeight(View view) {
+        Rect rect = new Rect();
+        view.getWindowVisibleDisplayFrame(rect);
+        return rect.top;
     }
 
     /**

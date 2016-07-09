@@ -425,11 +425,12 @@ public class QQRedDotView extends View {
         int width = imageView.getDrawable().getIntrinsicWidth();
         int height = imageView.getDrawable().getIntrinsicHeight();
         final WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        int statusBarHeight = Utils.getStatusBarHeight(this);
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
         layoutParams.format = PixelFormat.RGBA_8888;
         layoutParams.x = (int) (upRawX - width / 2);
-        layoutParams.y = (int) (upRawY - height / 2);
+        layoutParams.y = (int) (upRawY - height / 2)-statusBarHeight;
         Log.d("edison LayoutParams", "x: " + upRawX);
         Log.d("edison LayoutParams", "y: " + upRawY);
         layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
