@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.Window;
 
 /**
  * Created by edison on 16/7/3.
@@ -41,6 +42,16 @@ public class Utils {
     }
 
     /**
+     * 获取标题栏高度
+     * @param window
+     * @return
+     */
+    public static int getTitleBarHeight(Window window){
+        int contentTop = window.findViewById(Window.ID_ANDROID_CONTENT).getTop();
+        return contentTop - getStatusBarHeight(window);
+    }
+
+    /**
      * 获取状态栏的高度
      * @param view
      * @return
@@ -49,6 +60,12 @@ public class Utils {
         Rect rect = new Rect();
         view.getWindowVisibleDisplayFrame(rect);
         return rect.top;
+    }
+
+    public static int getStatusBarHeight(Window window){
+        Rect frame = new Rect();
+        window.getDecorView().getWindowVisibleDisplayFrame(frame);
+        return frame.top;
     }
 
     /**
