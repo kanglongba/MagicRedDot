@@ -145,7 +145,7 @@ public class QQRedDotView extends View {
 
         anchorPoint = new PointF();
 
-        windowManager = (WindowManager)context.getSystemService(Context.WINDOW_SERVICE);
+        windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
         statusBarHeight = 0;
         titleBarHeight = 0;
@@ -264,38 +264,49 @@ public class QQRedDotView extends View {
     boolean isInPullScale = true; //是否在拉力范围内
     boolean isDimiss = false;//是否应该dimiss小红点
     boolean isFirstOutPullScale = true;//是否是第一次脱离拉力范围.false表示已经至少脱离过拉力范围一次;true表示尚未脱离过拉力范围
+    QQRedDotView qqRedDotView;//Window中的红点
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if(!isInitFromLayout) {
-                    Log.d("edison event again",event+"");
-                    downX = event.getX();
-                    downY = event.getY();
+                if (!isInitFromLayout) {
+                    Log.d("edison event again", event + "");
+                    downX = event.getRawX();
+                    downY = event.getRawY()-getStatusBarHeight();
                     Log.d("edison action down", "downX: " + downX + " downY: " + downY);
+                    Log.d("edison dot rectF",dotRectF+"");
                     if (dotRectF.contains(downX, downY)) {
                         isdragable = true;
                     }
-                }else{
-                    Log.d("edison event",event+"");
-                    QQRedDotView qqRedDotView = new QQRedDotView(context);
-                    qqRedDotView.setQQRedDotView(this);
-                    qqRedDotView.setStatusBarHeight(Utils.getStatusBarHeight(this));
-                    if(null != onComputeTitleBarHeightListner){
-                        qqRedDotView.setTitleBarHeight(onComputeTitleBarHeightListner.onComputeTitleBarHeight());
+                } else {
+                    downX = event.getX();
+                    downY = event.getY();
+                    if (dotRectF.contains(downX, downY)) {
+                        isdragable = true;
+
+                        Log.d("edison event", event + "");
+                        qqRedDotView = new QQRedDotView(context);
+                        qqRedDotView.setQQRedDotView(this);
+                        qqRedDotView.setStatusBarHeight(Utils.getStatusBarHeight(this));
+                        qqRedDotView.setInitX(event.getRawX());
+                        qqRedDotView.setInitY(event.getRawY());
+                        if (null != onComputeTitleBarHeightListner) {
+                            qqRedDotView.setTitleBarHeight(onComputeTitleBarHeightListner.onComputeTitleBarHeight());
+                        }
+                        addQQRedDotViewToWindow(qqRedDotView, event);
+                        this.setVisibility(GONE);
                     }
-                    addQQRedDotViewToWindow(qqRedDotView,event);
-                    qqRedDotView.onTouchEvent(event);
-                    this.setVisibility(GONE);
-                    return false;
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                Log.d("edison event","move"+event);
-                if (isdragable) {
-                    moveX = event.getX();
-                    moveY = event.getY();
+                Log.d("edison event", "move" + event);
+                if ( !isInitFromLayout) {
+
+                    isdragable = true;
+
+                    moveX = event.getRawX();
+                    moveY = event.getRawY()-getStatusBarHeight();
                     if (MathUtils.getDistanceBetweenPoints(moveX, moveY, anchorPoint.x, anchorPoint.y) <= dismissRadius) {
                         isInPullScale = true;
                         updateAnchorDotRadius(moveX, moveY);
@@ -308,18 +319,18 @@ public class QQRedDotView extends View {
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                if(!isInitFromLayout) {
+                if (!isInitFromLayout) {
                     if (isdragable && isInPullScale) {
-                        upX = event.getX();
-                        upY = event.getY();
+                        upX = event.getRawX();
+                        upY = event.getRawY();
                         if (isFirstOutPullScale) {
                             animatorBackToAnchorPoint(upX, upY);
                         } else {
                             simpleBackToAnchorPoint(upX, upY);
                         }
                     } else if (isdragable && !isInPullScale) {
-                        upX = event.getX();
-                        upY = event.getY();
+                        upX = event.getRawX();
+                        upY = event.getRawY();
                         upRawX = event.getRawX();
                         upRawY = event.getRawY();
 
@@ -332,6 +343,9 @@ public class QQRedDotView extends View {
                 break;
             default:
                 break;
+        }
+        if (qqRedDotView != null) {
+            qqRedDotView.dispatchTouchEvent(event);
         }
         return true;
     }
@@ -346,7 +360,27 @@ public class QQRedDotView extends View {
      * 计算红点位置
      */
     private void computePosition() {
-        computePosition(getWidth() / 2, getHeight() / 2);
+        if(isInitFromLayout) {
+            computePosition(getWidth() / 2, getHeight() / 2);
+        }else{
+            computePosition(getInitX()-Utils.dp2px(context, dotRadius * 3 / 2),getInitY()-titleBarHeight);
+        }
+    }
+
+    public float getInitX() {
+        return initX;
+    }
+
+    public void setInitX(float initX) {
+        this.initX = initX;
+    }
+
+    public float getInitY() {
+        return initY;
+    }
+
+    public void setInitY(float initY) {
+        this.initY = initY;
     }
 
     private void computePosition(float x, float y) {
@@ -368,6 +402,8 @@ public class QQRedDotView extends View {
             computeRedDotBezierPoint(Utils.dp2px(context, 3 * dotRadius), Utils.dp2px(context, 2 * dotRadius));
         }
     }
+
+
 
     /**
      * 计算红点的数据点和控制点
@@ -490,11 +526,9 @@ public class QQRedDotView extends View {
 
         @Override
         public void onAnimationEnd(Animator animation) {
-            isdragable = false;
-            isInPullScale = true;
-            isFirstOutPullScale = true;
-            isDimiss = false;
+            resetStatus();
             getQQRedDotView().setVisibility(VISIBLE);
+            getQQRedDotView().resetStatus();
             removeQQRedDotViewToWindow();
         }
 
@@ -508,27 +542,35 @@ public class QQRedDotView extends View {
 
         }
     };
+    public void resetStatus(){
+        isdragable = false;
+        isInPullScale = true;
+        isFirstOutPullScale = true;
+        isDimiss = false;
+    }
 
     //添加view到WindowManager
-    public void addQQRedDotViewToWindow(QQRedDotView qqRedDotView,MotionEvent event){
+    public void addQQRedDotViewToWindow(QQRedDotView qqRedDotView, MotionEvent event) {
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
 //        layoutParams.format = PixelFormat.RGBA_8888;
         layoutParams.format = PixelFormat.TRANSLUCENT;
-        layoutParams.gravity = Gravity.TOP|Gravity.LEFT;
+        layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
         layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
         layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
-        windowManager.addView(qqRedDotView,layoutParams);
+        layoutParams.x = (int)event.getRawX();
+        layoutParams.y = (int)event.getY() - getTitleBarHeight();
+        windowManager.addView(qqRedDotView, layoutParams);
     }
 
-    public void removeQQRedDotViewToWindow(){
+    public void removeQQRedDotViewToWindow() {
         windowManager.removeView(this);
     }
 
-    public void setQQRedDotView(QQRedDotView qqRedDotView){
+    public void setQQRedDotView(QQRedDotView qqRedDotView) {
         this.mQQRedDotView = qqRedDotView;
     }
 
-    public QQRedDotView getQQRedDotView(){
+    public QQRedDotView getQQRedDotView() {
         return this.mQQRedDotView;
     }
 
@@ -559,9 +601,10 @@ public class QQRedDotView extends View {
     /**
      * 因为在View中无法获得标题栏的高度,所以写个回调由Activity或Fragment传递
      */
-    public interface OnComputeTitleBarHeightListner{
+    public interface OnComputeTitleBarHeightListner {
         /**
          * 返回标题栏的高度
+         *
          * @return
          */
         public int onComputeTitleBarHeight();
