@@ -62,6 +62,8 @@ public class QQRedDotView extends View {
 
     int titleBarHeight;
 
+
+
     public QQRedDotView(Context context) {
         super(context);
         init(context);
@@ -289,6 +291,7 @@ public class QQRedDotView extends View {
                         qqRedDotView = new QQRedDotView(context);
                         qqRedDotView.setQQRedDotView(this);
                         qqRedDotView.setStatusBarHeight(Utils.getStatusBarHeight(this));
+                        qqRedDotView.setWindowManager(windowManager);
                         qqRedDotView.setInitX(event.getRawX());
                         qqRedDotView.setInitY(event.getRawY());
                         if (null != onComputeTitleBarHeightListner) {
@@ -619,7 +622,7 @@ public class QQRedDotView extends View {
     /**
      * 更新未读消息的数量
      */
-    public interface OnUpdateMessageCountListner {
+    public interface OnUpdateMessageCountListener {
         /**
          * 更新未读消息的数量
          *
@@ -628,9 +631,48 @@ public class QQRedDotView extends View {
         public int onUpdateMessageCount();
     }
 
-    OnUpdateMessageCountListner onUpdateMessageCountListner;
+    OnUpdateMessageCountListener onUpdateMessageCountListener;
 
-    public void setOnUpdateMessageCountListner(OnUpdateMessageCountListner onUpdateMessageCountListner) {
-        this.onUpdateMessageCountListner = onUpdateMessageCountListner;
+    public void setOnUpdateMessageCountListener(OnUpdateMessageCountListener onUpdateMessageCountListener) {
+        this.onUpdateMessageCountListener = onUpdateMessageCountListener;
+    }
+
+    /**
+     * 开始拖动红点的监听
+     */
+    public interface OnDragStartListener{
+        public void OnDragStart();
+    }
+
+    OnDragStartListener onDragStartListener;
+
+    public void setOnDragStartListener(OnDragStartListener onDragStartListener){
+        this.onDragStartListener = onDragStartListener;
+    }
+
+    /**
+     * 红点消失的监听
+     */
+    public interface OnDotDismissListener{
+        public void OnDotDismiss();
+    }
+
+    OnDotDismissListener onDotDismissListener;
+
+    public void setOnDotDismissListener(OnDotDismissListener onDotDismissListener){
+        this.onDotDismissListener = onDotDismissListener;
+    }
+
+    /**
+     * 红点复位时的监听
+     */
+    public interface OnDotResetListener{
+        public void OnDotReset();
+    }
+
+    OnDotResetListener onDotResetListener;
+
+    public void setOnDotResetListener(OnDotResetListener onDotResetListener){
+        this.onDotResetListener = onDotResetListener;
     }
 }
