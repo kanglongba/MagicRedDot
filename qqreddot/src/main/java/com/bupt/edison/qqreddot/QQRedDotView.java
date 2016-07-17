@@ -3,6 +3,7 @@ package com.bupt.edison.qqreddot;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -74,12 +75,17 @@ public class QQRedDotView extends View {
         super(context, attrs);
         init(context);
         isInitFromLayout = true;
+
     }
 
     public QQRedDotView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
         isInitFromLayout = true;
+    }
+
+    private void initAttribute(Context context, AttributeSet attrs){
+        TypedArray typedArray = context.obtainStyledAttributes(attrs,R.styleable.QQRedDotView);
     }
 
     private void init(Context context) {
@@ -151,6 +157,8 @@ public class QQRedDotView extends View {
 
         statusBarHeight = 0;
         titleBarHeight = 0;
+
+
     }
 
     @Override
