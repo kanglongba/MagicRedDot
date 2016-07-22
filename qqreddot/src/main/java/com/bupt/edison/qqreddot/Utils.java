@@ -62,6 +62,11 @@ public class Utils {
         return rect.top;
     }
 
+    /**
+     * 获取状态栏的高度
+     * @param window
+     * @return
+     */
     public static int getStatusBarHeight(Window window){
         Rect frame = new Rect();
         window.getDecorView().getWindowVisibleDisplayFrame(frame);

@@ -20,6 +20,13 @@
             <!-- 带消息数,不可拖动-->
             <enum name="undragable" value="2" />
         </attr>
+        <!-- 未读消息数的显示方式-->
+        <attr name="countStyle" format="enum" >
+            <!-- 准确,有多少就显示多少-->
+            <enum name="accurate" value="0" />
+            <!-- 模糊,超过一定数目就显示一个大概的数值-->
+            <enum name="blurred" value="1" />
+        </attr>
         <!-- 可拖动的距离-->
         <attr name="dragDistance" format="dimension" />
     </declare-styleable>
