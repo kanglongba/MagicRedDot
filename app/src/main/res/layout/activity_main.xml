@@ -167,7 +167,7 @@
             app:textColor="@android:color/white"
             app:dragDotRadius="20dp"
             app:anchorDotRadius="15dp"
-            app:textSize="15sp"
+            app:textSize="20sp"
             app:dragDistance="200dp"
             />
     </LinearLayout>

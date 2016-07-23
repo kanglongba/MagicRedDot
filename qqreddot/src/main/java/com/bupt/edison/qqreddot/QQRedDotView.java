@@ -484,7 +484,7 @@ public class QQRedDotView extends View {
     //拖拽过程中更新锚点半径.拖拽时,锚点的半径会逐渐变小.
     private void updateAnchorDotRadius(float moveX, float moveY) {
         float distance = MathUtils.getDistanceBetweenPoints(moveX, moveY, anchorPoint.x, anchorPoint.y);
-        anchorDotRadius = initAnchorRadius - (distance / dragDistance) * (initAnchorRadius - 1);
+        anchorDotRadius = initAnchorRadius - (distance / dragDistance) * (initAnchorRadius - 5);
     }
 
     /**
