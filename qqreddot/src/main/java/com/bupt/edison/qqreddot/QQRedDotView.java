@@ -160,7 +160,7 @@ public class QQRedDotView extends View {
         //未读消息数的显示风格
         countStyle = typedArray.getInt(R.styleable.QQRedDotView_countStyle, 1);
         //未读消息数的阈值
-        msgThresholdValue = typedArray.getInt(R.styleable.QQRedDotView_msgThresholdCount,99);
+        msgThresholdValue = typedArray.getInt(R.styleable.QQRedDotView_msgThresholdCount, 99);
         typedArray.recycle();
     }
 
@@ -173,7 +173,7 @@ public class QQRedDotView extends View {
         dragDotPaint.setStrokeWidth(1);
         dragDotPaint.setColor(dotColor);
 
-        if(dotStyle == 1 || dotStyle ==2){
+        if (dotStyle == 1 || dotStyle == 2) {
             messageCountPaint = new Paint();
             messageCountPaint.setColor(textColor);
             messageCountPaint.setAntiAlias(true);
@@ -212,7 +212,7 @@ public class QQRedDotView extends View {
             anchorPoint = new PointF(); //dotStyle==2时,不需要锚点.但是为了书写方便,还是把它放在这里.
         }
 
-        if(dotStyle == 1){
+        if (dotStyle == 1) {
             rubberPaint = new Paint();
             rubberPaint.setStrokeWidth(1);
             rubberPaint.setColor(dotColor);
@@ -232,7 +232,9 @@ public class QQRedDotView extends View {
         }
 
         //未读消息数量
-        unreadCount = 999; //初始化时,未读消息数置为0.这里设置为999,是为了测试
+        unreadCount = 0; //初始化时,未读消息数置为0.这里设置为999,是为了测试
+        //未读消息的阈值不能小于99
+        msgThresholdValue = msgThresholdValue < 99 ? 99 : msgThresholdValue;
     }
 
 
@@ -249,9 +251,9 @@ public class QQRedDotView extends View {
 
         //红点的高度固定,但是宽度是根据未读消息数而变化的
         dotRealHeight = dragDotRadius * 2;
-        if (dotStyle == 0){ //实心点,没有未读消息数
+        if (dotStyle == 0) { //实心点,没有未读消息数
             dotRealWidth = dragDotRadius * 2;
-        }else { //非实心点,带消息数
+        } else { //非实心点,带消息数
             if (unreadCount >= 0 && unreadCount < 10) { //消息数为个位数
                 dotRealWidth = dragDotRadius * 2;
             } else if (unreadCount >= 10 && unreadCount <= 99) { // 消息数为两位数
@@ -280,7 +282,7 @@ public class QQRedDotView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        if(0 != dotStyle) {
+        if (0 != dotStyle) {
             //计算红点和锚点的中心点位置,计算红点的数据点和控制点
             computePosition();
         }
@@ -291,11 +293,11 @@ public class QQRedDotView extends View {
         super.onDraw(canvas);
         if (0 == dotStyle) { //实心红点,没有未读消息数
             canvas.drawCircle(getWidth() / 2.0f, getHeight() / 2.0f, dragDotRadius, dragDotPaint);
-        } else if (2 == dotStyle){ //带消息数,但不可拖动
-            if(unreadCount>0) {
+        } else if (2 == dotStyle) { //带消息数,但不可拖动
+            if (unreadCount > 0) {
                 drawDot(canvas); //只画红点和消息
             }
-        }else{ //显示未读消息数
+        } else { //显示未读消息数
             if (unreadCount > 0 && !isDimiss) {
                 if (isdragable && isInPullScale && isNotExceedPullScale) {
                     drawRubber(canvas);
@@ -334,7 +336,7 @@ public class QQRedDotView extends View {
             if (0 == countStyle) { //准确显示数目
                 count = String.valueOf(unreadCount);
             } else { //模糊显示
-                count = String.valueOf(msgThresholdValue)+"+";
+                count = String.valueOf(msgThresholdValue) + "+";
             }
         }
         if (!TextUtils.isEmpty(count)) {
@@ -419,7 +421,7 @@ public class QQRedDotView extends View {
                         this.setVisibility(GONE);//隐藏Activity中的红点
 
                         //红点开始拖动时的监听
-                        if(null != onDragStartListener){
+                        if (null != onDragStartListener) {
                             onDragStartListener.OnDragStart();
                         }
                     }
@@ -463,7 +465,7 @@ public class QQRedDotView extends View {
                         animationDismiss(upX, upY);
 
                         //红点消失时的监听
-                        if(null != getQQRedDotViewInActivity().getOnDotDismissListener()){
+                        if (null != getQQRedDotViewInActivity().getOnDotDismissListener()) {
                             getQQRedDotViewInActivity().getOnDotDismissListener().OnDotDismiss();
                         }
                     }
@@ -693,7 +695,7 @@ public class QQRedDotView extends View {
             getQQRedDotViewInActivity().resetStatus();
 
             //红点复位时的监听
-            if(null != getQQRedDotViewInActivity().getOnDotResetListener()){
+            if (null != getQQRedDotViewInActivity().getOnDotResetListener()) {
                 getQQRedDotViewInActivity().getOnDotResetListener().OnDotReset();
             }
 
@@ -774,9 +776,37 @@ public class QQRedDotView extends View {
     /**
      * 更新未读消息的数量
      */
-    public void setUnreadCount(int unreadCount){
+    public void setUnreadCount(int unreadCount) {
+        int lastCount = this.unreadCount;
         this.unreadCount = unreadCount;
-        invalidate();
+        if (0 == lastCount) {
+            requestLayout();
+            invalidate();
+        } else if (lastCount > 0 && lastCount < 10) {
+            if (unreadCount < 10) {
+                invalidate();
+            } else {
+                requestLayout();
+                invalidate();
+            }
+        } else if (lastCount >= 10 && lastCount <= msgThresholdValue) {
+            if (unreadCount < 10) {
+                requestLayout();
+                invalidate();
+            } else if (unreadCount >= 10 && unreadCount <= msgThresholdValue) {
+                invalidate();
+            } else if (unreadCount > msgThresholdValue) {
+                requestLayout();
+                invalidate();
+            }
+        } else if (lastCount > msgThresholdValue) {
+            if (unreadCount > msgThresholdValue) {
+                invalidate();
+            } else {
+                requestLayout();
+                invalidate();
+            }
+        }
     }
 
     /**
@@ -936,7 +966,7 @@ public class QQRedDotView extends View {
             return new QQRedDotView(context, windowManager, statusBarHeight,
                     widgetCenterXInWindow, widgetCenterYInWindow,
                     dragDistance, dragDotRadius, anchorDotRadius, dotColor, textColor, textSize,
-                    dotStyle, unreadCount, countStyle,msgThresholdValue);
+                    dotStyle, unreadCount, countStyle, msgThresholdValue);
         }
     }
 }

@@ -1,27 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingLeft="30dp"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:orientation="vertical"
     tools:context="com.bupt.edison.qqreddotdemo.MainActivity">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        android:id="@+id/text"/>
-    <com.bupt.edison.qqreddot.QQRedDotView
+        android:text="显示未读消息数,但是不可拖动.可自定义大小,颜色"
+        android:textSize="10sp"
+        android:textColor="@android:color/black"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:dragDotRadius="10dp"
+            app:dotStyle="undragable"
+            app:dotColor="@android:color/holo_red_light"
+            app:textColor="@android:color/white"
+            app:textSize="12sp"
+            android:id="@+id/qqdot_0" />
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            app:dragDotRadius="10dp"
+            app:dotStyle="undragable"
+            app:countStyle="blurred"
+            app:msgThresholdCount="199"
+            app:textColor="@android:color/holo_red_dark"
+            app:textSize="12sp"
+            app:dotColor="@android:color/holo_blue_dark"
+            android:id="@+id/qqdot_1" />
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            app:dragDotRadius="15dp"
+            app:dotStyle="undragable"
+            app:countStyle="blurred"
+            app:textColor="@android:color/white"
+            app:textSize="20sp"
+            app:dotColor="@android:color/holo_orange_dark"
+            android:id="@+id/qqdot_2" />
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            app:dragDotRadius="20dp"
+            app:dotStyle="undragable"
+            app:countStyle="accurate"
+            app:textColor="@android:color/holo_red_dark"
+            app:textSize="30sp"
+            app:dotColor="@android:color/holo_green_dark"
+            android:id="@+id/qqdot_3" />
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            app:dragDotRadius="20dp"
+            app:dotStyle="undragable"
+            app:countStyle="accurate"
+            app:textColor="@android:color/white"
+            app:textSize="20sp"
+            app:dotColor="@android:color/holo_purple"
+            android:id="@+id/qqdot_4" />
+
+    </LinearLayout>
+
+    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/text"
-        android:layout_marginTop="20dp"
-        app:dragDotRadius="10dp"
-        app:dotStyle="undragable"
-        android:id="@+id/qqdot" />
-</RelativeLayout>
+        android:text="实心红点,没有未读消息,也不可拖动.可自定义大小,颜色"
+        android:textSize="10sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="30dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="10dp">
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:dotStyle="solid"
+            app:dragDotRadius="5dp"
+            app:dotColor="@android:color/holo_blue_dark"/>
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            app:dotStyle="solid"
+            app:dragDotRadius="10dp"
+            app:dotColor="@android:color/holo_red_dark"/>
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            app:dotStyle="solid"
+            app:dragDotRadius="15dp"
+            app:dotColor="@android:color/holo_orange_dark"/>
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            app:dotStyle="solid"
+            app:dragDotRadius="20dp"
+            app:dotColor="@android:color/holo_red_light"/>
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="30dp"
+            android:background="@android:color/holo_orange_light"
+            app:dotStyle="solid"
+            app:dragDotRadius="15dp"
+            app:dotColor="@android:color/holo_green_dark"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="实时更新未读消息数"
+        android:textSize="10sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="30dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical">
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="update message"
+            android:id="@+id/btn_updateMsg"
+            android:textSize="10sp"/>
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:id="@+id/qqdot_5"
+            app:dotStyle="undragable"
+            app:dragDotRadius="15dp"
+            app:textSize="13dp"
+            app:dotColor="@android:color/holo_red_light"
+            app:textColor="@android:color/white"
+            app:countStyle="blurred"
+            app:msgThresholdCount="799"/>
+    </LinearLayout>
+
+</LinearLayout>
