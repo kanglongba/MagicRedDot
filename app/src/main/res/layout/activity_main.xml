@@ -22,5 +22,6 @@
         android:layout_below="@id/text"
         android:layout_marginTop="20dp"
         app:dragDotRadius="10dp"
+        app:dotStyle="undragable"
         android:id="@+id/qqdot" />
 </RelativeLayout>

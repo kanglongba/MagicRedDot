@@ -173,58 +173,66 @@ public class QQRedDotView extends View {
         dragDotPaint.setStrokeWidth(1);
         dragDotPaint.setColor(dotColor);
 
-        rubberPaint = new Paint();
-        rubberPaint.setStrokeWidth(1);
-        rubberPaint.setColor(dotColor);
-        rubberPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        rubberPaint.setAntiAlias(true);
+        if(dotStyle == 1 || dotStyle ==2){
+            messageCountPaint = new Paint();
+            messageCountPaint.setColor(textColor);
+            messageCountPaint.setAntiAlias(true);
+            messageCountPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            messageCountPaint.setStrokeWidth(1);
+            messageCountPaint.setTextSize(textSize);
 
-        anchorDotPaint = new Paint();
-        anchorDotPaint.setColor(dotColor);
-        anchorDotPaint.setStrokeWidth(1);
-        anchorDotPaint.setAntiAlias(true);
-        anchorDotPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            mDistance = bezierCircleConstant * dragDotRadius;
 
-        messageCountPaint = new Paint();
-        messageCountPaint.setColor(textColor);
-        messageCountPaint.setAntiAlias(true);
-        messageCountPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        messageCountPaint.setStrokeWidth(1);
-        messageCountPaint.setTextSize(textSize);
+            //六个数据点
+            upPointFLeft = new PointF();
+            downPointFLeft = new PointF();
+            upPointFRight = new PointF();
+            downPointRight = new PointF();
+            leftPointF = new PointF();
+            rightPointF = new PointF();
+            //八个控制点
+            upLeftPointF = new PointF();
+            upRightPointF = new PointF();
+            downLeftPointF = new PointF();
+            downRightPointF = new PointF();
+            leftUpPointF = new PointF();
+            leftDownPointF = new PointF();
+            rightUpPointF = new PointF();
+            rightDownPointF = new PointF();
+            //绘制红点的贝塞尔曲线
+            redDotPath = new Path();
 
-        mDistance = bezierCircleConstant * dragDotRadius;
-        //六个数据点
-        upPointFLeft = new PointF();
-        downPointFLeft = new PointF();
-        upPointFRight = new PointF();
-        downPointRight = new PointF();
-        leftPointF = new PointF();
-        rightPointF = new PointF();
-        //八个控制点
-        upLeftPointF = new PointF();
-        upRightPointF = new PointF();
-        downLeftPointF = new PointF();
-        downRightPointF = new PointF();
-        leftUpPointF = new PointF();
-        leftDownPointF = new PointF();
-        rightUpPointF = new PointF();
-        rightDownPointF = new PointF();
-        //贝塞尔曲线
-        redDotPath = new Path();
-        rubberPath = new Path();
-        //锚点的圆心点
-        anchorPoint = new PointF();
+            //红点的范围矩阵
+            dragDotRectF = new RectF();
+            //红点的中心点
+            dragDotCenterPoint = new PointF();
+            //红点的左上角的点
+            dragDotLeftTopPoint = new PointF();
+            //锚点的圆心点
+            anchorPoint = new PointF(); //dotStyle==2时,不需要锚点.但是为了书写方便,还是把它放在这里.
+        }
 
-        //红点的范围矩阵
-        dragDotRectF = new RectF();
-        //红点的中心点
-        dragDotCenterPoint = new PointF();
-        //红点的左上角的点
-        dragDotLeftTopPoint = new PointF();
+        if(dotStyle == 1){
+            rubberPaint = new Paint();
+            rubberPaint.setStrokeWidth(1);
+            rubberPaint.setColor(dotColor);
+            rubberPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+            rubberPaint.setAntiAlias(true);
+
+            anchorDotPaint = new Paint();
+            anchorDotPaint.setColor(dotColor);
+            anchorDotPaint.setStrokeWidth(1);
+            anchorDotPaint.setAntiAlias(true);
+            anchorDotPaint.setStyle(Paint.Style.FILL_AND_STROKE);
+
+            //绘制皮筋的贝塞尔曲线
+            rubberPath = new Path();
+            //初始的锚点半径
+            initAnchorRadius = anchorDotRadius;
+        }
+
         //未读消息数量
         unreadCount = 999; //初始化时,未读消息数置为0.这里设置为999,是为了测试
-        //初始的锚点半径
-        initAnchorRadius = anchorDotRadius;
     }
 
 
@@ -241,12 +249,16 @@ public class QQRedDotView extends View {
 
         //红点的高度固定,但是宽度是根据未读消息数而变化的
         dotRealHeight = dragDotRadius * 2;
-        if (unreadCount >= 0 && unreadCount < 10) { //消息数为个位数
+        if (dotStyle == 0){ //实心点,没有未读消息数
             dotRealWidth = dragDotRadius * 2;
-        } else if (unreadCount >= 10 && unreadCount <= 99) { // 消息数为两位数
-            dotRealWidth = 12 * dragDotRadius / 5;
-        } else { //消息数为三位数及以上
-            dotRealWidth = 3 * dragDotRadius;
+        }else { //非实心点,带消息数
+            if (unreadCount >= 0 && unreadCount < 10) { //消息数为个位数
+                dotRealWidth = dragDotRadius * 2;
+            } else if (unreadCount >= 10 && unreadCount <= 99) { // 消息数为两位数
+                dotRealWidth = 12 * dragDotRadius / 5;
+            } else { //消息数为三位数及以上
+                dotRealWidth = 3 * dragDotRadius;
+            }
         }
 
         if (widthMode == MeasureSpec.EXACTLY) {
@@ -268,8 +280,10 @@ public class QQRedDotView extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
-        //计算红点和锚点的中心点位置,计算红点的数据点和控制点
-        computePosition();
+        if(0 != dotStyle) {
+            //计算红点和锚点的中心点位置,计算红点的数据点和控制点
+            computePosition();
+        }
     }
 
     @Override
@@ -277,7 +291,11 @@ public class QQRedDotView extends View {
         super.onDraw(canvas);
         if (0 == dotStyle) { //实心红点,没有未读消息数
             canvas.drawCircle(getWidth() / 2.0f, getHeight() / 2.0f, dragDotRadius, dragDotPaint);
-        } else { //显示未读消息数
+        } else if (2 == dotStyle){ //带消息数,但不可拖动
+            if(unreadCount>0) {
+                drawDot(canvas); //只画红点和消息
+            }
+        }else{ //显示未读消息数
             if (unreadCount > 0 && !isDimiss) {
                 if (isdragable && isInPullScale && isNotExceedPullScale) {
                     drawRubber(canvas);
