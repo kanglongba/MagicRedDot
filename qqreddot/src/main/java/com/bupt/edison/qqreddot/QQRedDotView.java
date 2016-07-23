@@ -51,7 +51,7 @@ public class QQRedDotView extends View {
     PointF anchorPoint;//锚点的圆心点.固定不动的点,记录红点在Activty中初始化时的位置.
 
     boolean isInitFromLayout = true; //是否从布局文件中初始化,true表示从布局文件中初始化(Activity中的点).false表示从代码中初始化(Window中的点)
-    int unreadCount; //未读的消息数
+    int unreadCount = 0; //未读的消息数
     RectF dragDotRectF;//红点的范围矩阵,用于判断当前的touch事件是否击中了红点.
 
     //从xml中读取的红点的属性
@@ -231,8 +231,6 @@ public class QQRedDotView extends View {
             initAnchorRadius = anchorDotRadius;
         }
 
-        //未读消息数量
-        unreadCount = 0; //初始化时,未读消息数置为0.这里设置为999,是为了测试
         //未读消息的阈值不能小于99
         msgThresholdValue = msgThresholdValue < 99 ? 99 : msgThresholdValue;
     }

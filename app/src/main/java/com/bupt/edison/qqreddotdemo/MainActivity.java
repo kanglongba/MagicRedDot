@@ -15,7 +15,6 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
 
-    QQRedDotView qqRedDotView;
     @Bind(R.id.qqdot_0)
     QQRedDotView qqdot0;
     @Bind(R.id.qqdot_1)
@@ -30,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
     Button btnUpdateMsg;
     @Bind(R.id.qqdot_5)
     QQRedDotView qqdot5;
+    @Bind(R.id.qqdot_6)
+    QQRedDotView qqdot6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
         setQQRedDotViewWithText();
-
+        setQQRedDotView();
     }
 
     private void setQQRedDotViewWithText() {
@@ -51,28 +52,28 @@ public class MainActivity extends AppCompatActivity {
         btnUpdateMsg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int msgCount = (int)(Math.random() * 1000);
-                Log.d("edison","count "+msgCount);
+                int msgCount = (int) (Math.random() * 1000);
+                Log.d("edison", "count " + msgCount);
                 qqdot5.setUnreadCount(msgCount);
             }
         });
     }
 
     private void setQQRedDotView() {
-        qqRedDotView = (QQRedDotView) findViewById(R.id.qqdot_0);
-        qqRedDotView.setOnDragStartListener(new QQRedDotView.OnDragStartListener() {
+        qqdot6.setUnreadCount(666);
+        qqdot6.setOnDragStartListener(new QQRedDotView.OnDragStartListener() {
             @Override
             public void OnDragStart() {
                 Toast.makeText(MainActivity.this, "开始拖拽", Toast.LENGTH_SHORT).show();
             }
         });
-        qqRedDotView.setOnDotResetListener(new QQRedDotView.OnDotResetListener() {
+        qqdot6.setOnDotResetListener(new QQRedDotView.OnDotResetListener() {
             @Override
             public void OnDotReset() {
                 Toast.makeText(MainActivity.this, "红点复位", Toast.LENGTH_SHORT).show();
             }
         });
-        qqRedDotView.setOnDotDismissListener(new QQRedDotView.OnDotDismissListener() {
+        qqdot6.setOnDotDismissListener(new QQRedDotView.OnDotDismissListener() {
             @Override
             public void OnDotDismiss() {
                 Toast.makeText(MainActivity.this, "红点消失", Toast.LENGTH_SHORT).show();
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         //这里还有个坑,状态栏和标题栏的高度计算结果都是0
         Log.d("edison titlebar", Utils.getTitleBarHeight(getWindow()) + "");
         Log.d("edison statusbar", Utils.getStatusBarHeight(getWindow()) + "");
-        Log.d("edison statusbar", Utils.getStatusBarHeight(qqdot0) + "");
+        Log.d("edison statusbar", Utils.getStatusBarHeight(qqdot6) + "");
     }
 
     @Override

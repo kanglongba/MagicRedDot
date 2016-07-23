@@ -144,6 +144,37 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="可拖拽的,可以显示未读消息数的红点,还可以设置监听器"
+        android:textSize="10sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="30dp"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="10dp"
+        android:background="@android:color/darker_gray"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <com.bupt.edison.qqreddot.QQRedDotView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/qqdot_6"
+            app:dotStyle="dragable"
+            app:countStyle="accurate"
+            app:dotColor="@android:color/holo_red_light"
+            app:textColor="@android:color/white"
+            app:dragDotRadius="20dp"
+            app:anchorDotRadius="15dp"
+            app:textSize="15sp"
+            app:dragDistance="200dp"
+            />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:text="实时更新未读消息数"
         android:textSize="10sp"
         android:textColor="@android:color/black"
