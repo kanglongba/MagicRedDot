@@ -606,6 +606,9 @@ public class QQRedDotView extends View {
         imageView.postDelayed(new Runnable() {
             @Override
             public void run() {
+                //更新未读消息数为0
+                getQQRedDotViewInActivity().setUnreadCount(0);
+
                 animationDrawable.stop();
                 imageView.clearAnimation();
                 windowManager.removeView(imageView);

@@ -16,6 +16,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 //        requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         setContentView(R.layout.activity_main);
+        setQQRedDotView();
+    }
+
+    private void setQQRedDotView(){
         qqRedDotView = (QQRedDotView)findViewById(R.id.qqdot);
         qqRedDotView.setOnDragStartListener(new QQRedDotView.OnDragStartListener() {
             @Override
