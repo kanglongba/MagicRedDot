@@ -399,6 +399,11 @@ public class QQRedDotView extends View {
 
                         addQQRedDotViewToWindow(qqRedDotViewInWindow); //添加到window中
                         this.setVisibility(GONE);//隐藏Activity中的红点
+
+                        //红点开始拖动时的监听
+                        if(null != onDragStartListener){
+                            onDragStartListener.OnDragStart();
+                        }
                     }
                 }
                 break;
@@ -438,6 +443,11 @@ public class QQRedDotView extends View {
                         isDimiss = true;
                         invalidate();
                         animationDismiss(upX, upY);
+
+                        //红点消失时的监听
+                        if(null != getQQRedDotViewInActivity().getOnDotDismissListener()){
+                            getQQRedDotViewInActivity().getOnDotDismissListener().OnDotDismiss();
+                        }
                     }
                 }
                 break;
@@ -660,6 +670,12 @@ public class QQRedDotView extends View {
             resetStatus();
             getQQRedDotViewInActivity().setVisibility(VISIBLE);
             getQQRedDotViewInActivity().resetStatus();
+
+            //红点复位时的监听
+            if(null != getQQRedDotViewInActivity().getOnDotResetListener()){
+                getQQRedDotViewInActivity().getOnDotResetListener().OnDotReset();
+            }
+
             removeQQRedDotViewToWindow();
         }
 
@@ -737,19 +753,9 @@ public class QQRedDotView extends View {
     /**
      * 更新未读消息的数量
      */
-    public interface OnUpdateMessageCountListener {
-        /**
-         * 更新未读消息的数量
-         *
-         * @return
-         */
-        public int onUpdateMessageCount();
-    }
-
-    OnUpdateMessageCountListener onUpdateMessageCountListener;
-
-    public void setOnUpdateMessageCountListener(OnUpdateMessageCountListener onUpdateMessageCountListener) {
-        this.onUpdateMessageCountListener = onUpdateMessageCountListener;
+    public void setUnreadCount(int unreadCount){
+        this.unreadCount = unreadCount;
+        invalidate();
     }
 
     /**
@@ -765,6 +771,10 @@ public class QQRedDotView extends View {
         this.onDragStartListener = onDragStartListener;
     }
 
+    public OnDragStartListener getOnDragStartListener() {
+        return onDragStartListener;
+    }
+
     /**
      * 红点消失的监听
      */
@@ -778,6 +788,10 @@ public class QQRedDotView extends View {
         this.onDotDismissListener = onDotDismissListener;
     }
 
+    public OnDotDismissListener getOnDotDismissListener() {
+        return onDotDismissListener;
+    }
+
     /**
      * 红点复位时的监听
      */
@@ -789,6 +803,10 @@ public class QQRedDotView extends View {
 
     public void setOnDotResetListener(OnDotResetListener onDotResetListener) {
         this.onDotResetListener = onDotResetListener;
+    }
+
+    public OnDotResetListener getOnDotResetListener() {
+        return onDotResetListener;
     }
 
     /**

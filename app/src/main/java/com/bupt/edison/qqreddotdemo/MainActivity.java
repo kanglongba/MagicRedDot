@@ -3,6 +3,7 @@ package com.bupt.edison.qqreddotdemo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.bupt.edison.qqreddot.QQRedDotView;
 import com.bupt.edison.qqreddot.Utils;
@@ -16,7 +17,24 @@ public class MainActivity extends AppCompatActivity {
 //        requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         setContentView(R.layout.activity_main);
         qqRedDotView = (QQRedDotView)findViewById(R.id.qqdot);
-
+        qqRedDotView.setOnDragStartListener(new QQRedDotView.OnDragStartListener() {
+            @Override
+            public void OnDragStart() {
+                Toast.makeText(MainActivity.this,"开始拖拽",Toast.LENGTH_SHORT).show();
+            }
+        });
+        qqRedDotView.setOnDotResetListener(new QQRedDotView.OnDotResetListener() {
+            @Override
+            public void OnDotReset() {
+                Toast.makeText(MainActivity.this,"红点复位",Toast.LENGTH_SHORT).show();
+            }
+        });
+        qqRedDotView.setOnDotDismissListener(new QQRedDotView.OnDotDismissListener() {
+            @Override
+            public void OnDotDismiss() {
+                Toast.makeText(MainActivity.this,"红点消失",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
