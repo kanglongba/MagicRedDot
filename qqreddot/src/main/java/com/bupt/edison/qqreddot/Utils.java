@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.Window;
@@ -90,7 +89,7 @@ public class Utils {
                 iRet += (int) Math.ceil(widths[j]);
             }
         }
-        Log.d("edison","text width: "+iRet);
+//        Log.d("edison","text width: "+iRet);
         return iRet;
     }
 
@@ -106,7 +105,7 @@ public class Utils {
 
         //返回包围整个字符串的最小的一个Rect区域
         paint.getTextBounds(string, 0, 1, rect);
-        Log.d("edison","text height: "+rect.height());
+//        Log.d("edison","text height: "+rect.height());
         return rect.height();
     }
 }

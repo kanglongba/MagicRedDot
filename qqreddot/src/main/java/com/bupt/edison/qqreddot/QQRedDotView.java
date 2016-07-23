@@ -14,7 +14,6 @@ import android.graphics.RectF;
 import android.graphics.drawable.AnimationDrawable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -33,7 +32,8 @@ public class QQRedDotView extends View {
     int statusBarHeight;//状态栏高度,在Window中无法测量,需要从Activity中传入
     int titleBarHeight;//标题栏高度
 
-    QQRedDotView mQQRedDotView; //window中的红点维持一个Activity中红点的引用
+    QQRedDotView qqRedDotViewInActivity; //Activity中的红点,window中的红点维持一个Activity中红点的引用
+    QQRedDotView qqRedDotViewInWindow; //Window中的红点,Acitvity中的红点需要维持一个Window中红点的引用
 
     Paint dragDotPaint; //红点画笔
     Paint rubberPaint;//皮筋画笔
@@ -69,14 +69,13 @@ public class QQRedDotView extends View {
     float dotRealHeight;//红点真实的高度
     PointF dragDotCenterPoint;//红点的中心点
     PointF dragDotLeftTopPoint;//红点的左上角的点
-    //一些控件的控制变量
-    float initX, initY;//红点初始时的位置(左上角的坐标)
-    float initCenterX, initCenterY;//红点初始时的中心位置(圆心的坐标)
+    float widgetCenterXInWindow, widgetCenterYInWindow;//控件的中心点在Window中的位置.
     float initAnchorRadius;//锚点初始的半径, 与未变化前的anchorDotRadius值相等
 
 
     /**
      * 用固定的属性值初始化控件
+     *
      * @param context
      */
     public QQRedDotView(Context context) {
@@ -89,7 +88,7 @@ public class QQRedDotView extends View {
 
     public QQRedDotView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initAttribute(context,attrs);
+        initAttribute(context, attrs);
         initTools(context);
         isInitFromLayout = true;
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -97,20 +96,23 @@ public class QQRedDotView extends View {
 
     public QQRedDotView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        initAttribute(context,attrs);
+        initAttribute(context, attrs);
         initTools(context);
         isInitFromLayout = true;
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
-    public QQRedDotView(Context context,WindowManager windowManager,int statusBarHeight,int titleBarHeight,
-                        float dragDistance,float dragDotRadius,float anchorDotRadius,
-                        int dotColor,int textColor,int textSize,int dotStyle,int unreadCount,int countStyle){
+    public QQRedDotView(Context context, WindowManager windowManager, int statusBarHeight, int titleBarHeight,
+                        float widgetCenterXInWindow, float widgetCenterYInWindow,
+                        float dragDistance, float dragDotRadius, float anchorDotRadius,
+                        int dotColor, int textColor, int textSize, int dotStyle, int unreadCount, int countStyle) {
         super(context);
         this.context = context;
         this.windowManager = windowManager;
         this.statusBarHeight = statusBarHeight;
         this.titleBarHeight = titleBarHeight;
+        this.widgetCenterXInWindow = widgetCenterXInWindow;
+        this.widgetCenterYInWindow = widgetCenterYInWindow;
         this.dragDistance = dragDistance;
         this.dragDotRadius = dragDotRadius;
         this.anchorDotRadius = anchorDotRadius;
@@ -125,36 +127,36 @@ public class QQRedDotView extends View {
     }
 
     //用固定的属性值初始化各个属性
-    private void initAttribute(Context context){
-        dragDotRadius = Utils.dp2px(context,20);
-        anchorDotRadius = Utils.dp2px(context,16);
+    private void initAttribute(Context context) {
+        dragDotRadius = Utils.dp2px(context, 20);
+        anchorDotRadius = Utils.dp2px(context, 16);
         dotColor = Color.RED;
         textColor = Color.WHITE;
-        textSize = Utils.sp2px(context,24);
+        textSize = Utils.sp2px(context, 24);
         dotStyle = 1;
         countStyle = 1;
-        dragDistance = Utils.dp2px(context,150);
+        dragDistance = Utils.dp2px(context, 150);
     }
 
     //从layout文件中读取配置,初始化控件
-    private void initAttribute(Context context, AttributeSet attrs){
-        TypedArray typedArray = context.obtainStyledAttributes(attrs,R.styleable.QQRedDotView);
+    private void initAttribute(Context context, AttributeSet attrs) {
+        TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.QQRedDotView);
         //红点的半径
-        dragDotRadius = typedArray.getDimensionPixelOffset(R.styleable.QQRedDotView_dragDotRadius,20);
+        dragDotRadius = typedArray.getDimensionPixelOffset(R.styleable.QQRedDotView_dragDotRadius, 20);
         //锚点的半径
-        anchorDotRadius = typedArray.getDimensionPixelOffset(R.styleable.QQRedDotView_anchorDotRadius,16);
+        anchorDotRadius = typedArray.getDimensionPixelOffset(R.styleable.QQRedDotView_anchorDotRadius, 16);
         //红点的颜色
-        dotColor = typedArray.getColor(R.styleable.QQRedDotView_dotColor,Color.RED);
+        dotColor = typedArray.getColor(R.styleable.QQRedDotView_dotColor, Color.RED);
         //消息字体的颜色
-        textColor = typedArray.getColor(R.styleable.QQRedDotView_textColor,Color.WHITE);
+        textColor = typedArray.getColor(R.styleable.QQRedDotView_textColor, Color.WHITE);
         //消息字体的大小
-        textSize = typedArray.getDimensionPixelSize(R.styleable.QQRedDotView_textSize,24);
+        textSize = typedArray.getDimensionPixelSize(R.styleable.QQRedDotView_textSize, 24);
         //红点的风格.0,实心点;1,可拖动;2,不可拖动
-        dotStyle = typedArray.getInt(R.styleable.QQRedDotView_dotStyle,1);
+        dotStyle = typedArray.getInt(R.styleable.QQRedDotView_dotStyle, 1);
         //红点可拖动的距离.也是消失距离和复位距离;
-        dragDistance = typedArray.getDimensionPixelOffset(R.styleable.QQRedDotView_dragDistance,150);
+        dragDistance = typedArray.getDimensionPixelOffset(R.styleable.QQRedDotView_dragDistance, 150);
         //未读消息数的显示风格
-        countStyle = typedArray.getInt(R.styleable.QQRedDotView_countStyle,1);
+        countStyle = typedArray.getInt(R.styleable.QQRedDotView_countStyle, 1);
         typedArray.recycle();
     }
 
@@ -216,97 +218,64 @@ public class QQRedDotView extends View {
         //红点的左上角的点
         dragDotLeftTopPoint = new PointF();
         //未读消息数量
-        unreadCount = 999; //初始化时,未读消息数置为0.这里设置为119,是为了测试
-
-
-        //一些临时变量
-        initX = 0;
-        initY = 0;
-        initCenterX = 0;
-        initCenterY = 0;
-
+        unreadCount = 9; //初始化时,未读消息数置为0.这里设置为119,是为了测试
+        //初始的锚点半径
         initAnchorRadius = anchorDotRadius;
-
-
-        //状态栏和标题栏的高度,要从Activity传进来
-        titleBarHeight = 0;
-        titleBarHeight = 0;
     }
-
 
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        Log.d("edison onMeasure", "pivotX: " + getPivotX() + " pivotY: " + getPivotY());
-        Log.d("edison onMeasure", "X: " + getX() + " Y: " + getY());
-        Log.d("edison onMeasure", "width: " + getWidth() + " " + "height: " + getHeight());
-        Log.d("edison onMeasure", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
 
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
 
-        float width,height;
+        float width, height;
 
         //红点的高度固定,但是宽度是根据未读消息数而变化的
-        dotRealHeight = dragDotRadius*2;
-        if(unreadCount>=0 && unreadCount<10){ //消息数为个位数
-            dotRealWidth = dragDotRadius*2;
-        }else if(unreadCount>=10 && unreadCount<=99) { // 消息数为两位数
-            dotRealWidth = 12*dragDotRadius/5;
-        }else{ //消息数为三位数及以上
-            dotRealWidth = 3*dragDotRadius;
+        dotRealHeight = dragDotRadius * 2;
+        if (unreadCount >= 0 && unreadCount < 10) { //消息数为个位数
+            dotRealWidth = dragDotRadius * 2;
+        } else if (unreadCount >= 10 && unreadCount <= 99) { // 消息数为两位数
+            dotRealWidth = 12 * dragDotRadius / 5;
+        } else { //消息数为三位数及以上
+            dotRealWidth = 3 * dragDotRadius;
         }
 
-        if(widthMode == MeasureSpec.EXACTLY){
-            width=widthSize<dotRealWidth?dotRealWidth:widthSize; //必须保证可以完整容纳红点
-        }else{
+        if (widthMode == MeasureSpec.EXACTLY) {
+            width = widthSize < dotRealWidth ? dotRealWidth : widthSize; //必须保证可以完整容纳红点
+        } else {
             width = dotRealWidth;
         }
 
-        if(heightMode == MeasureSpec.EXACTLY){
-            height=heightSize<dragDotRadius*2?dragDotRadius*2:heightSize; //必须保证可以完整容纳红点
-        }else{
-            height = dragDotRadius*2;
+        if (heightMode == MeasureSpec.EXACTLY) {
+            height = heightSize < dragDotRadius * 2 ? dragDotRadius * 2 : heightSize; //必须保证可以完整容纳红点
+        } else {
+            height = dragDotRadius * 2;
         }
 
-        setMeasuredDimension((int)width+2,(int)height+2); //宽高各加两个像素,防止红点的边缘被切掉
-    }
-
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
-        Log.d("edison onLayout", "pivotX: " + getPivotX() + " pivotY: " + getPivotY());
-        Log.d("edison onLayout", "X: " + getX() + " Y: " + getY());
-        Log.d("edison onLayout", "width: " + getWidth() + " " + "height: " + getHeight());
-        Log.d("edison onLayout", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
+        setMeasuredDimension((int) width + 2, (int) height + 2); //宽高各加两个像素,防止红点的边缘被切掉
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
-        Log.d("edison onSizeChanged", "pivotX: " + getPivotX() + " pivotY: " + getPivotY());
-        Log.d("edison onSizeChanged", "X: " + getX() + " Y: " + getY());
-        Log.d("edison onSizeChanged", "width: " + getWidth() + " " + "height: " + getHeight());
-        Log.d("edison onSizeChanged", "left: " + getLeft() + " " + "top: " + getTop() + " right: " + getRight() + " bottom: " + getBottom());
 
         //计算红点和锚点的中心点位置,计算红点的数据点和控制点
         computePosition();
-
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.d("edison", "onDraw");
-
-        if(0 == dotStyle){ //实心红点,没有未读消息数
-            canvas.drawCircle(getWidth()/2.0f,getHeight()/2.0f,dragDotRadius,dragDotPaint);
-        }else { //显示未读消息数
+        if (0 == dotStyle) { //实心红点,没有未读消息数
+            canvas.drawCircle(getWidth() / 2.0f, getHeight() / 2.0f, dragDotRadius, dragDotPaint);
+        } else { //显示未读消息数
             if (unreadCount > 0 && !isDimiss) {
-                if (isdragable && isInPullScale && isFirstOutPullScale) {
+                if (isdragable && isInPullScale && isNotExceedPullScale) {
                     drawRubber(canvas);
                     drawAnchorDot(canvas);
                 }
@@ -330,6 +299,7 @@ public class QQRedDotView extends View {
             redDotPath.cubicTo(leftUpPointF.x, leftUpPointF.y, upLeftPointF.x, upLeftPointF.y, upPointFLeft.x, upPointFLeft.y);
             canvas.drawPath(redDotPath, dragDotPaint);
         }
+
         drawMsgCount(canvas);
     }
 
@@ -339,9 +309,9 @@ public class QQRedDotView extends View {
         if (unreadCount > 0 && unreadCount <= 99) {
             count = String.valueOf(unreadCount);
         } else if (unreadCount > 99) {
-            if(0 == countStyle){ //准确显示数目
+            if (0 == countStyle) { //准确显示数目
                 count = String.valueOf(unreadCount);
-            }else { //模糊显示
+            } else { //模糊显示
                 count = "99+";
             }
         }
@@ -382,102 +352,125 @@ public class QQRedDotView extends View {
         canvas.drawPath(rubberPath, rubberPaint);
     }
 
-    float downX, downY, moveX, moveY, upX, upY, upRawX, upRawY;
+    float downX, downY, moveX, moveY, upX, upY;
     boolean isdragable = false;//是否可拖拽
     boolean isInPullScale = true; //是否在拉力范围内
     boolean isDimiss = false;//是否应该dimiss小红点
-    boolean isFirstOutPullScale = true;//是否是第一次脱离拉力范围.false表示已经至少脱离过拉力范围一次;true表示尚未脱离过拉力范围
-    QQRedDotView qqRedDotView;//Window中的红点
+    boolean isNotExceedPullScale = true;//是否未曾脱离拉力范围.false表示已经至少脱离过拉力范围一次;true表示尚未脱离过拉力范围
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (1 != dotStyle) { //只有dotStyle=1时,才可以拖动
+            return super.onTouchEvent(event);
+        }
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                if (!isInitFromLayout) {
-                    Log.d("edison event again", event + "");
+                if (!isInitFromLayout) { //从代码中实例化View
                     downX = event.getRawX();
-                    downY = event.getRawY()-getStatusBarHeight();
-                    Log.d("edison action down", "downX: " + downX + " downY: " + downY);
-                    Log.d("edison dot rectF", dragDotRectF +"");
-                    if (dragDotRectF.contains(downX, downY)) {
-                        isdragable = true;
-                    }
-                } else {
+                    downY = event.getRawY() - getStatusBarHeight();
+
+                    //在这里,dragDotRectF还没有被赋值
+                    isdragable = false;
+                } else { //从xml中实例化View
                     downX = event.getX();
                     downY = event.getY();
-                    if (dragDotRectF.contains(downX, downY)) {
+                    if (dragDotRectF.contains(downX, downY)) { //击中了红点,允许拖动
                         isdragable = true;
+                        //在这里会遇到一个坑,getLocationInWindow返回的坐标与getLocationOnScreen返回的坐标相同
+                        //这会导致计算错误,引起后续一系列问题.Android坑真多,被这个问题困了很久.参考下面两个答案
+                        //http://stackoverflow.com/questions/17672891/getlocationonscreen-vs-getlocationinwindow
+                        //http://stackoverflow.com/questions/2638342/incorrect-coordinates-from-getlocationonscreen-getlocationinwindow
+                        int[] locationInScreen = new int[2]; //控件在当前屏幕中的坐标
+                        getLocationOnScreen(locationInScreen);
+                        setStatusBarHeight(Utils.getStatusBarHeight(this));
+                        qqRedDotViewInWindow = new QQRedDotView.Builder().setAnchorDotRadius(this.anchorDotRadius)
+                                .setDotColor(this.dotColor).setDotStyle(this.dotStyle).setDragDotRadius(this.dragDotRadius)
+                                .setWindowManager(this.windowManager).setContext(this.context).setCountStyle(this.countStyle)
+                                .setDragDistance(this.dragDistance).setUnreadCount(this.unreadCount).setTextSize(this.textSize)
+                                .setTextColor(this.textColor).setStatusBarHeight(this.statusBarHeight).setTitleBarHeight(this.titleBarHeight)
+                                .setWidgetCenterXInWindow(locationInScreen[0] + getWidth() / 2f)
+                                .setwidgetCenterYInWindow(locationInScreen[1] + getHeight() / 2f - getStatusBarHeight())
+                                .create();
+                        qqRedDotViewInWindow.setQQRedDotViewInActivity(this);
 
-                        Log.d("edison event", event + "");
-                        qqRedDotView = new QQRedDotView(context);
-                        qqRedDotView.setQQRedDotView(this);
-                        qqRedDotView.setStatusBarHeight(Utils.getStatusBarHeight(this));
-                        qqRedDotView.setWindowManager(windowManager);
-                        qqRedDotView.setInitX(event.getRawX());
-                        qqRedDotView.setInitY(event.getRawY());
-                        if (null != onComputeTitleBarHeightListner) {
-                            qqRedDotView.setTitleBarHeight(onComputeTitleBarHeightListner.onComputeTitleBarHeight());
-                        }
-                        addQQRedDotViewToWindow(qqRedDotView, event);
-                        this.setVisibility(GONE);
+                        addQQRedDotViewToWindow(qqRedDotViewInWindow); //添加到window中
+                        this.setVisibility(GONE);//隐藏Activity中的红点
                     }
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
-                Log.d("edison event", "move" + event);
-                if ( !isInitFromLayout) {
-
+                if (!isInitFromLayout) {
+                    //拖动的时候,再允许红点拉伸
                     isdragable = true;
 
                     moveX = event.getRawX();
-                    moveY = event.getRawY()-getStatusBarHeight();
+                    moveY = event.getRawY() - getStatusBarHeight();//把坐标校正成Window中坐标
                     if (MathUtils.getDistanceBetweenPoints(moveX, moveY, anchorPoint.x, anchorPoint.y) <= dragDistance) {
                         isInPullScale = true;
                         updateAnchorDotRadius(moveX, moveY);
                     } else {
-                        isFirstOutPullScale = false;
+                        isNotExceedPullScale = false;
                         isInPullScale = false;
                     }
-                    computePosition(centerX2StartX(moveX), centerY2StartY(moveY));
+                    computePosition(moveX, moveY);
                     invalidate();
                 }
                 break;
             case MotionEvent.ACTION_UP:
                 if (!isInitFromLayout) {
-                    if (isdragable && isInPullScale) {
+                    if (isdragable && isInPullScale) { //在拉力范围内,要使红点复位
                         upX = event.getRawX();
-                        upY = event.getRawY();
-                        if (isFirstOutPullScale) {
+                        upY = event.getRawY() - getStatusBarHeight();//校正坐标
+                        if (isNotExceedPullScale) { //未曾脱离过拉力范围(橡皮筋还没有断),复位时,要有一个橡皮筋效果
                             animatorBackToAnchorPoint(upX, upY);
-                        } else {
+                        } else { //曾经脱离过拉力范围(橡皮筋已断),复位时,直接回到原始点
                             simpleBackToAnchorPoint(upX, upY);
                         }
-                    } else if (isdragable && !isInPullScale) {
+                    } else if (isdragable && !isInPullScale) { //超过拉力范围,播放消失动画
                         upX = event.getRawX();
-                        upY = event.getRawY();
-                        upRawX = event.getRawX();
-                        upRawY = event.getRawY();
+                        upY = event.getRawY() - getStatusBarHeight();//校正坐标
 
                         //消失
                         isDimiss = true;
                         invalidate();
-                        animationDismiss();
+                        animationDismiss(upX, upY);
                     }
                 }
                 break;
             default:
                 break;
         }
-        if (qqRedDotView != null) {
-            qqRedDotView.dispatchTouchEvent(event);
+        //虽然qqRedDotViewInActivity会被隐藏,但是所有的Touch事件仍会被传递给
+        //qqRedDotViewInActivity,所以需要在qqRedDotViewInActivity的onTouchEvent()函数中
+        //把Touch时间传给qqRedDotViewInWindow
+        if (qqRedDotViewInWindow != null) {
+            qqRedDotViewInWindow.dispatchTouchEvent(event);
         }
         return true;
     }
 
-    //拖拽时,锚点的半径会逐渐变小
+    //拖拽过程中更新锚点半径.拖拽时,锚点的半径会逐渐变小.
     private void updateAnchorDotRadius(float moveX, float moveY) {
         float distance = MathUtils.getDistanceBetweenPoints(moveX, moveY, anchorPoint.x, anchorPoint.y);
-        anchorDotRadius = (int) (initAnchorRadius - (distance / dragDistance) * (initAnchorRadius - 1));
+        anchorDotRadius = initAnchorRadius - (distance / dragDistance) * (initAnchorRadius - 1);
+    }
+
+    /**
+     * 获取控件的中心点在window中的坐标
+     *
+     * @return
+     */
+    public float getWidgetCenterXInWindow() {
+        return widgetCenterXInWindow;
+    }
+
+    /**
+     * 获取控件的中心点在window中的坐标
+     *
+     * @return
+     */
+    public float getWidgetCenterYInWindow() {
+        return widgetCenterYInWindow;
     }
 
     /**
@@ -485,52 +478,32 @@ public class QQRedDotView extends View {
      * 红点位于控件的中心点位置,红点的中心点位置与控件的中心点位置重合.
      */
     private void computePosition() {
-        if(isInitFromLayout) {
-            computePosition(getWidth()/2.0f, getHeight()/2.0f);
-        }else{
-            computePosition(getInitX(),getInitY());
+        if (isInitFromLayout) {
+            anchorPoint.set(getWidth() / 2.0f, getHeight() / 2.0f);//保存锚点的位置
+            computePosition(getWidth() / 2.0f, getHeight() / 2.0f);
+        } else {
+            anchorPoint.set(getWidgetCenterXInWindow(), getWidgetCenterYInWindow());//保存锚点的位置,因为锚点的位置是固定不变的,所以不能随着的touch事件更新,故放在这里初始化
+            computePosition(getWidgetCenterXInWindow(), getWidgetCenterYInWindow());
         }
-    }
-
-    public float getInitX() {
-        return initX;
-    }
-
-    public void setInitX(float initX) {
-        this.initX = initX;
-    }
-
-    public float getInitY() {
-        return initY;
-    }
-
-    public void setInitY(float initY) {
-        this.initY = initY;
     }
 
     /**
      * 根据中心点的位置,计算红点的数据点和控制点
+     *
      * @param centerX
      * @param centerY
      */
     private void computePosition(float centerX, float centerY) {
-        dragDotCenterPoint.set(centerX,centerY);//保存中心点位置
+        dragDotCenterPoint.set(centerX, centerY);//保存中心点位置
         dragDotLeftTopPoint = center2LeftTop(dragDotCenterPoint);//保存左上角的位置
-        anchorPoint.set(centerX, centerY);//保存锚点的位置
-
-        //以后不需要在这里初始化它们了,删掉
-        initCenterX = centerX;
-        initCenterY = centerY;
-        initX = centerX2StartX(centerX);
-        initY = centerY2StartY(centerY);
 
         if (unreadCount > 0 && unreadCount <= 9) {
-            dragDotRectF.set(dragDotLeftTopPoint.x, dragDotLeftTopPoint.y, dragDotLeftTopPoint.x+dragDotRadius*2,dragDotLeftTopPoint.y+dragDotRadius*2);
+            dragDotRectF.set(dragDotLeftTopPoint.x, dragDotLeftTopPoint.y, dragDotLeftTopPoint.x + dragDotRadius * 2, dragDotLeftTopPoint.y + dragDotRadius * 2);
         } else if (unreadCount > 9 && unreadCount <= 99) {
-            dragDotRectF.set(dragDotLeftTopPoint.x, dragDotLeftTopPoint.y, dragDotLeftTopPoint.x+dragDotRadius*12/5,dragDotLeftTopPoint.y+dragDotRadius*2);
+            dragDotRectF.set(dragDotLeftTopPoint.x, dragDotLeftTopPoint.y, dragDotLeftTopPoint.x + dragDotRadius * 12 / 5, dragDotLeftTopPoint.y + dragDotRadius * 2);
             computeRedDotBezierPoint(12 * dragDotRadius / 5, 2 * dragDotRadius);
         } else if (unreadCount > 99) {
-            dragDotRectF.set(dragDotLeftTopPoint.x, dragDotLeftTopPoint.y, dragDotLeftTopPoint.x+dragDotRadius*3,dragDotLeftTopPoint.y+dragDotRadius*2);
+            dragDotRectF.set(dragDotLeftTopPoint.x, dragDotLeftTopPoint.y, dragDotLeftTopPoint.x + dragDotRadius * 3, dragDotLeftTopPoint.y + dragDotRadius * 2);
             computeRedDotBezierPoint(3 * dragDotRadius, 2 * dragDotRadius);
         }
     }
@@ -538,7 +511,7 @@ public class QQRedDotView extends View {
     /**
      * 计算红点的数据点和控制点
      *
-     * @param width 红点的实际宽度
+     * @param width  红点的实际宽度
      * @param height 红点的实际高度
      */
     private void computeRedDotBezierPoint(float width, float height) {
@@ -565,12 +538,12 @@ public class QQRedDotView extends View {
     //红点中心点坐标转换为左上角坐标
     private float centerX2StartX(float centerX) {
         float startX;
-        if(unreadCount>=0 && unreadCount<10){
+        if (unreadCount >= 0 && unreadCount < 10) {
             startX = centerX - dragDotRadius;
-        }else if(unreadCount>=10 && unreadCount<100){
-            startX = centerX - 6*dragDotRadius/5;
-        }else{
-            startX = centerX - 3*dragDotRadius/2;
+        } else if (unreadCount >= 10 && unreadCount < 100) {
+            startX = centerX - 6 * dragDotRadius / 5;
+        } else {
+            startX = centerX - 3 * dragDotRadius / 2;
         }
         return startX;
     }
@@ -582,24 +555,25 @@ public class QQRedDotView extends View {
 
     /**
      * 根据中间点的坐标,计算出左上角点的坐标
+     *
      * @param centerPointF
      * @return
      */
-    private PointF center2LeftTop(PointF centerPointF){
+    private PointF center2LeftTop(PointF centerPointF) {
         PointF leftTopPointF = new PointF();
-        if(unreadCount>=0 && unreadCount<10){
-            leftTopPointF.set(centerPointF.x-dragDotRadius,centerPointF.y-dragDotRadius);
-        }else if(unreadCount>=10 && unreadCount<100){
-            leftTopPointF.set(centerPointF.x-6*dragDotRadius/5,centerPointF.y-dragDotRadius);
-        }else{
+        if (unreadCount >= 0 && unreadCount < 10) {
+            leftTopPointF.set(centerPointF.x - dragDotRadius, centerPointF.y - dragDotRadius);
+        } else if (unreadCount >= 10 && unreadCount < 100) {
+            leftTopPointF.set(centerPointF.x - 6 * dragDotRadius / 5, centerPointF.y - dragDotRadius);
+        } else {
             //TODO 这里需要根据countStyle的值定制
-            leftTopPointF.set(centerPointF.x-3*dragDotRadius/2,centerPointF.y-dragDotRadius);
+            leftTopPointF.set(centerPointF.x - 3 * dragDotRadius / 2, centerPointF.y - dragDotRadius);
         }
         return leftTopPointF;
     }
 
     //小红点的消失动画
-    private void animationDismiss() {
+    private void animationDismiss(float upX, float upY) {
         final ImageView imageView = new ImageView(context);
         imageView.setImageResource(R.drawable.dismiss_anim);
         final AnimationDrawable animationDrawable = (AnimationDrawable) imageView.getDrawable();
@@ -609,10 +583,8 @@ public class QQRedDotView extends View {
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
         layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
         layoutParams.format = PixelFormat.RGBA_8888;
-        layoutParams.x = (int) (upRawX - width / 2);
-        layoutParams.y = (int) (upRawY - height / 2) - getStatusBarHeight();
-        Log.d("edison LayoutParams", "x: " + upRawX);
-        Log.d("edison LayoutParams", "y: " + upRawY);
+        layoutParams.x = (int) (upX - width / 2);
+        layoutParams.y = (int) (upY - height / 2);
         layoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
         layoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
         windowManager.addView(imageView, layoutParams);
@@ -626,10 +598,9 @@ public class QQRedDotView extends View {
                 removeQQRedDotViewToWindow();
             }
         }, duration);
-        Log.d("edison", "dismiss reddot");
     }
 
-    //简单的复位动画,没有回弹效果.从消失区域回到复原区域时调用
+    //简单的复位动画,没有回弹效果.
     private void simpleBackToAnchorPoint(final float upX, final float upY) {
         ValueAnimator animatorX = ValueAnimator.ofFloat(upX, anchorPoint.x);
         animatorX.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -638,9 +609,9 @@ public class QQRedDotView extends View {
                 float fraction = animation.getAnimatedFraction();
                 float currentX = (float) animation.getAnimatedValue();
                 float currentY = (anchorPoint.y - upY) * fraction + upY;
-                moveX = currentX;
+                moveX = currentX; //这时皮筋已断,已经不会再绘制皮筋了,所以其实可以取消对moveX和moveY的赋值操作
                 moveY = currentY;
-                computePosition(centerX2StartX(currentX), centerY2StartY(currentY));
+                computePosition(currentX, currentY);
                 invalidate();
             }
         });
@@ -660,16 +631,16 @@ public class QQRedDotView extends View {
                 float fraction = animation.getAnimatedFraction();
                 float currentX = (float) animation.getAnimatedValue();
                 float currentY = (anchorPoint.y - upY) * fraction + upY;
-                moveX = currentX;
+                moveX = currentX; //画皮筋时要用到moveX和moveY
                 moveY = currentY;
-                computePosition(centerX2StartX(currentX), centerY2StartY(currentY));
+                computePosition(currentX, currentY);
                 invalidate();
             }
         });
         animatorX.addListener(animatorListener);
-        //这个回弹效果不够机智,将来自顶一个Interpolator优化一下
+        //TODO 这个回弹效果不够机智,将来自顶一个Interpolator优化一下
         animatorX.setInterpolator(new OvershootInterpolator(4.0f));
-//        animatorX.setInterpolator(new BounceInterpolator());
+        //animatorX.setInterpolator(new BounceInterpolator()); //这个回弹效果不太好用
         animatorX.setDuration(500);
         animatorX.start();
     }
@@ -683,8 +654,8 @@ public class QQRedDotView extends View {
         @Override
         public void onAnimationEnd(Animator animation) {
             resetStatus();
-            getQQRedDotView().setVisibility(VISIBLE);
-            getQQRedDotView().resetStatus();
+            getQQRedDotViewInActivity().setVisibility(VISIBLE);
+            getQQRedDotViewInActivity().resetStatus();
             removeQQRedDotViewToWindow();
         }
 
@@ -698,23 +669,24 @@ public class QQRedDotView extends View {
 
         }
     };
-    public void resetStatus(){
+
+    public void resetStatus() {
         isdragable = false;
         isInPullScale = true;
-        isFirstOutPullScale = true;
+        isNotExceedPullScale = true;
         isDimiss = false;
     }
 
-    //添加view到WindowManager
-    public void addQQRedDotViewToWindow(QQRedDotView qqRedDotView, MotionEvent event) {
+    //添加红点到WindowManager
+    public void addQQRedDotViewToWindow(QQRedDotView qqRedDotView) {
         WindowManager.LayoutParams layoutParams = new WindowManager.LayoutParams();
-//        layoutParams.format = PixelFormat.RGBA_8888;
-        layoutParams.format = PixelFormat.TRANSLUCENT;
+        layoutParams.format = PixelFormat.RGBA_8888;
+//        layoutParams.format = PixelFormat.TRANSLUCENT;
         layoutParams.gravity = Gravity.TOP | Gravity.LEFT;
         layoutParams.width = WindowManager.LayoutParams.MATCH_PARENT;
         layoutParams.height = WindowManager.LayoutParams.MATCH_PARENT;
-        layoutParams.x = (int)event.getRawX();
-        layoutParams.y = (int)event.getY() - getTitleBarHeight();
+        layoutParams.x = 0;
+        layoutParams.y = 0;
         windowManager.addView(qqRedDotView, layoutParams);
     }
 
@@ -722,54 +694,40 @@ public class QQRedDotView extends View {
         windowManager.removeView(this);
     }
 
-    public void setQQRedDotView(QQRedDotView qqRedDotView) {
-        this.mQQRedDotView = qqRedDotView;
+    /**
+     * 保存对Activity中红点的引用
+     *
+     * @param qqRedDotView
+     */
+    public void setQQRedDotViewInActivity(QQRedDotView qqRedDotView) {
+        this.qqRedDotViewInActivity = qqRedDotView;
     }
 
-    public QQRedDotView getQQRedDotView() {
-        return this.mQQRedDotView;
+    /**
+     * 获取Activity中的红点对象的引用
+     *
+     * @return
+     */
+    public QQRedDotView getQQRedDotViewInActivity() {
+        return this.qqRedDotViewInActivity;
     }
 
+    /**
+     * 获取状态栏的高度
+     *
+     * @return
+     */
     public int getStatusBarHeight() {
         return statusBarHeight;
     }
 
+    /**
+     * 设置状态栏的高度
+     *
+     * @param statusBarHeight
+     */
     public void setStatusBarHeight(int statusBarHeight) {
         this.statusBarHeight = statusBarHeight;
-    }
-
-    public int getTitleBarHeight() {
-        return titleBarHeight;
-    }
-
-    public void setTitleBarHeight(int titleBarHeight) {
-        this.titleBarHeight = titleBarHeight;
-    }
-
-    public WindowManager getWindowManager() {
-        return windowManager;
-    }
-
-    public void setWindowManager(WindowManager windowManager) {
-        this.windowManager = windowManager;
-    }
-
-    /**
-     * 因为在View中无法获得标题栏的高度,所以写个回调由Activity或Fragment传递
-     */
-    public interface OnComputeTitleBarHeightListner {
-        /**
-         * 返回标题栏的高度
-         *
-         * @return
-         */
-        public int onComputeTitleBarHeight();
-    }
-
-    OnComputeTitleBarHeightListner onComputeTitleBarHeightListner;
-
-    public void setOnComputeTitleBarHeightListner(OnComputeTitleBarHeightListner onComputeTitleBarHeightListner) {
-        this.onComputeTitleBarHeightListner = onComputeTitleBarHeightListner;
     }
 
     /**
@@ -793,51 +751,53 @@ public class QQRedDotView extends View {
     /**
      * 开始拖动红点的监听
      */
-    public interface OnDragStartListener{
+    public interface OnDragStartListener {
         public void OnDragStart();
     }
 
     OnDragStartListener onDragStartListener;
 
-    public void setOnDragStartListener(OnDragStartListener onDragStartListener){
+    public void setOnDragStartListener(OnDragStartListener onDragStartListener) {
         this.onDragStartListener = onDragStartListener;
     }
 
     /**
      * 红点消失的监听
      */
-    public interface OnDotDismissListener{
+    public interface OnDotDismissListener {
         public void OnDotDismiss();
     }
 
     OnDotDismissListener onDotDismissListener;
 
-    public void setOnDotDismissListener(OnDotDismissListener onDotDismissListener){
+    public void setOnDotDismissListener(OnDotDismissListener onDotDismissListener) {
         this.onDotDismissListener = onDotDismissListener;
     }
 
     /**
      * 红点复位时的监听
      */
-    public interface OnDotResetListener{
+    public interface OnDotResetListener {
         public void OnDotReset();
     }
 
     OnDotResetListener onDotResetListener;
 
-    public void setOnDotResetListener(OnDotResetListener onDotResetListener){
+    public void setOnDotResetListener(OnDotResetListener onDotResetListener) {
         this.onDotResetListener = onDotResetListener;
     }
 
     /**
      * 使用builder模式初始化控件
-     * 从代码中初始化控件时,调用
+     * 从代码中初始化控件时调用
      */
-    public static class Builder{
+    public static class Builder {
         private Context context;
         private WindowManager windowManager;//在window中
         private int statusBarHeight;//状态栏高度,在Window中无法测量,需要从Activity中传入
         private int titleBarHeight;//标题栏高度
+        private float widgetCenterXInWindow;//控件的中心点在Window中的位置.
+        private float widgetCenterYInWindow;//控件的中心点在Window中的位置.
 
         private float dragDistance;//红点的可拖拽距离,超过这个距离,红点会消失;小于这个距离,红点会复位
         private float dragDotRadius;//红点的半径
@@ -850,7 +810,7 @@ public class QQRedDotView extends View {
 
         private int unreadCount;//未读消息数
 
-        public Builder(){
+        public Builder() {
         }
 
         public Builder setAnchorDotRadius(float anchorDotRadius) {
@@ -888,6 +848,16 @@ public class QQRedDotView extends View {
             return this;
         }
 
+        public Builder setWidgetCenterXInWindow(float widgetCenterXInWindow) {
+            this.widgetCenterXInWindow = widgetCenterXInWindow;
+            return this;
+        }
+
+        public Builder setwidgetCenterYInWindow(float widgetCenterYInWindow) {
+            this.widgetCenterYInWindow = widgetCenterYInWindow;
+            return this;
+        }
+
         public Builder setTextColor(int textColor) {
             this.textColor = textColor;
             return this;
@@ -918,10 +888,11 @@ public class QQRedDotView extends View {
             return this;
         }
 
-        public QQRedDotView create(){
-            return new QQRedDotView(context,windowManager,statusBarHeight,titleBarHeight,
-                    dragDistance,dragDotRadius,anchorDotRadius,dotColor,textColor,textSize,
-                    dotStyle,unreadCount,countStyle);
+        public QQRedDotView create() {
+            return new QQRedDotView(context, windowManager, statusBarHeight, titleBarHeight,
+                    widgetCenterXInWindow, widgetCenterYInWindow,
+                    dragDistance, dragDotRadius, anchorDotRadius, dotColor, textColor, textSize,
+                    dotStyle, unreadCount, countStyle);
         }
     }
 }

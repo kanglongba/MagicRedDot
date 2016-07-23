@@ -1,7 +1,6 @@
 package com.bupt.edison.qqreddot;
 
 import android.graphics.PointF;
-import android.util.Log;
 
 /**
  * Created by edison on 16/7/3.
@@ -135,11 +134,11 @@ public class MathUtils {
             p3.set((float)(centerX1-radius1*Math.cos(arcP3C1X)),(float)(centerY1-radius1*Math.sin(arcP3C1X)));
         }
 
-        Log.d("edison","斜率: "+arcGradient);
-        Log.d("edison","p1 arc: "+arcP1C1X);
-        Log.d("edison","p2 arc: "+arcP2C2X);
-        Log.d("edison","p3 arc: "+arcP3C1X);
-        Log.d("edison","p4 arc: "+arcP4C2Y);
+//        Log.d("edison","斜率: "+arcGradient);
+//        Log.d("edison","p1 arc: "+arcP1C1X);
+//        Log.d("edison","p2 arc: "+arcP2C2X);
+//        Log.d("edison","p3 arc: "+arcP3C1X);
+//        Log.d("edison","p4 arc: "+arcP4C2Y);
 
         pointFs[0] = p1;
         pointFs[1] = p2;

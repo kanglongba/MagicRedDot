@@ -16,14 +16,17 @@ public class MainActivity extends AppCompatActivity {
 //        requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
         setContentView(R.layout.activity_main);
         qqRedDotView = (QQRedDotView)findViewById(R.id.qqdot);
-        qqRedDotView.setOnComputeTitleBarHeightListner(new QQRedDotView.OnComputeTitleBarHeightListner() {
-            @Override
-            public int onComputeTitleBarHeight() {
-                qqRedDotView.setWindowManager(getWindowManager());
-                Log.d("edison","titlebar height "+Utils.getTitleBarHeight(getWindow()));
-                return Utils.getTitleBarHeight(getWindow());
-            }
-        });
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //这里还有个坑,状态栏和标题栏的高度计算结果都是0
+        qqRedDotView.setStatusBarHeight(Utils.getStatusBarHeight(getWindow()));
+        Log.d("edison titlebar",Utils.getTitleBarHeight(getWindow())+"");
+        Log.d("edison statusbar",Utils.getStatusBarHeight(getWindow())+"");
+        Log.d("edison statusbar",Utils.getStatusBarHeight(qqRedDotView)+"");
     }
 
     @Override
