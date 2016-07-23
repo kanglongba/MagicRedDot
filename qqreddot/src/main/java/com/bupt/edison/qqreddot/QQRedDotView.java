@@ -773,6 +773,7 @@ public class QQRedDotView extends View {
 
     /**
      * 更新未读消息的数量
+     * 参考:http://blog.csdn.net/yanbober/article/details/46128379
      */
     public void setUnreadCount(int unreadCount) {
         int lastCount = this.unreadCount;
