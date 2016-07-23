@@ -175,7 +175,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="实时更新未读消息数"
+        android:text="实时更新未读消息数,红点大小可随消息数变化"
         android:textSize="10sp"
         android:textColor="@android:color/black"
         android:layout_marginTop="30dp"/>
