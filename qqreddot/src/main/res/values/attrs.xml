@@ -27,6 +27,8 @@
             <!-- 模糊,超过一定数目就显示一个大概的数值-->
             <enum name="blurred" value="1" />
         </attr>
+        <!-- 消息数量的阈值,当超过这个数,并且显示方式设置为模糊,就开始模糊显示-->
+        <attr name="msgThresholdCount" format="integer" />
         <!-- 可拖动的距离-->
         <attr name="dragDistance" format="dimension" />
     </declare-styleable>

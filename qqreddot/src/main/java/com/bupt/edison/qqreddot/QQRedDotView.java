@@ -30,7 +30,6 @@ public class QQRedDotView extends View {
     Context context;
     WindowManager windowManager;
     int statusBarHeight;//状态栏高度,在Window中无法测量,需要从Activity中传入
-    int titleBarHeight;//标题栏高度
 
     QQRedDotView qqRedDotViewInActivity; //Activity中的红点,window中的红点维持一个Activity中红点的引用
     QQRedDotView qqRedDotViewInWindow; //Window中的红点,Acitvity中的红点需要维持一个Window中红点的引用
@@ -64,6 +63,7 @@ public class QQRedDotView extends View {
     int textSize;//未读消息的字体大小
     int dotStyle;//红点的style.0,实心点;1,可拖动;2,不可拖动
     int countStyle;//未读消息数的显示风格.0,准确显示;1,超过一定数值,就显示一个大概的数
+    int msgThresholdValue;//消息数量的阈值,当超过这个数,并且显示方式设置为模糊,就开始模糊显示
 
     float dotRealWidth;//红点真实的宽度
     float dotRealHeight;//红点真实的高度
@@ -102,15 +102,15 @@ public class QQRedDotView extends View {
         windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     }
 
-    public QQRedDotView(Context context, WindowManager windowManager, int statusBarHeight, int titleBarHeight,
+    public QQRedDotView(Context context, WindowManager windowManager, int statusBarHeight,
                         float widgetCenterXInWindow, float widgetCenterYInWindow,
                         float dragDistance, float dragDotRadius, float anchorDotRadius,
-                        int dotColor, int textColor, int textSize, int dotStyle, int unreadCount, int countStyle) {
+                        int dotColor, int textColor, int textSize, int dotStyle, int unreadCount,
+                        int countStyle, int msgThresholdValue) {
         super(context);
         this.context = context;
         this.windowManager = windowManager;
         this.statusBarHeight = statusBarHeight;
-        this.titleBarHeight = titleBarHeight;
         this.widgetCenterXInWindow = widgetCenterXInWindow;
         this.widgetCenterYInWindow = widgetCenterYInWindow;
         this.dragDistance = dragDistance;
@@ -122,6 +122,7 @@ public class QQRedDotView extends View {
         this.dotStyle = dotStyle;
         this.countStyle = countStyle;
         this.unreadCount = unreadCount;
+        this.msgThresholdValue = msgThresholdValue;
         initTools(context);
         isInitFromLayout = false;
     }
@@ -135,6 +136,7 @@ public class QQRedDotView extends View {
         textSize = Utils.sp2px(context, 24);
         dotStyle = 1;
         countStyle = 1;
+        msgThresholdValue = 99;
         dragDistance = Utils.dp2px(context, 150);
     }
 
@@ -157,6 +159,8 @@ public class QQRedDotView extends View {
         dragDistance = typedArray.getDimensionPixelOffset(R.styleable.QQRedDotView_dragDistance, 150);
         //未读消息数的显示风格
         countStyle = typedArray.getInt(R.styleable.QQRedDotView_countStyle, 1);
+        //未读消息数的阈值
+        msgThresholdValue = typedArray.getInt(R.styleable.QQRedDotView_msgThresholdCount,99);
         typedArray.recycle();
     }
 
@@ -218,7 +222,7 @@ public class QQRedDotView extends View {
         //红点的左上角的点
         dragDotLeftTopPoint = new PointF();
         //未读消息数量
-        unreadCount = 9; //初始化时,未读消息数置为0.这里设置为119,是为了测试
+        unreadCount = 999; //初始化时,未读消息数置为0.这里设置为999,是为了测试
         //初始的锚点半径
         initAnchorRadius = anchorDotRadius;
     }
@@ -306,13 +310,13 @@ public class QQRedDotView extends View {
     //绘制红点中的消息数量文字
     private void drawMsgCount(Canvas canvas) {
         String count = "";
-        if (unreadCount > 0 && unreadCount <= 99) {
+        if (unreadCount > 0 && unreadCount <= msgThresholdValue) {
             count = String.valueOf(unreadCount);
         } else if (unreadCount > 99) {
             if (0 == countStyle) { //准确显示数目
                 count = String.valueOf(unreadCount);
             } else { //模糊显示
-                count = "99+";
+                count = String.valueOf(msgThresholdValue)+"+";
             }
         }
         if (!TextUtils.isEmpty(count)) {
@@ -387,7 +391,7 @@ public class QQRedDotView extends View {
                                 .setDotColor(this.dotColor).setDotStyle(this.dotStyle).setDragDotRadius(this.dragDotRadius)
                                 .setWindowManager(this.windowManager).setContext(this.context).setCountStyle(this.countStyle)
                                 .setDragDistance(this.dragDistance).setUnreadCount(this.unreadCount).setTextSize(this.textSize)
-                                .setTextColor(this.textColor).setStatusBarHeight(this.statusBarHeight).setTitleBarHeight(this.titleBarHeight)
+                                .setTextColor(this.textColor).setStatusBarHeight(this.statusBarHeight).setMsgThresholdValue(this.msgThresholdValue)
                                 .setWidgetCenterXInWindow(locationInScreen[0] + getWidth() / 2f)
                                 .setwidgetCenterYInWindow(locationInScreen[1] + getHeight() / 2f - getStatusBarHeight())
                                 .create();
@@ -807,6 +811,7 @@ public class QQRedDotView extends View {
         private int textSize;//未读消息的字体大小
         private int dotStyle;//红点的style.0,实心点;1,可拖动;2,不可拖动
         private int countStyle;//未读消息数的显示风格.0,准确显示;1,超过一定数值,就显示一个大概的数
+        private int msgThresholdValue;//未读消息数的阈值
 
         private int unreadCount;//未读消息数
 
@@ -868,8 +873,8 @@ public class QQRedDotView extends View {
             return this;
         }
 
-        public Builder setTitleBarHeight(int titleBarHeight) {
-            this.titleBarHeight = titleBarHeight;
+        public Builder setMsgThresholdValue(int msgThresholdValue) {
+            this.msgThresholdValue = msgThresholdValue;
             return this;
         }
 
@@ -889,10 +894,10 @@ public class QQRedDotView extends View {
         }
 
         public QQRedDotView create() {
-            return new QQRedDotView(context, windowManager, statusBarHeight, titleBarHeight,
+            return new QQRedDotView(context, windowManager, statusBarHeight,
                     widgetCenterXInWindow, widgetCenterYInWindow,
                     dragDistance, dragDotRadius, anchorDotRadius, dotColor, textColor, textSize,
-                    dotStyle, unreadCount, countStyle);
+                    dotStyle, unreadCount, countStyle,msgThresholdValue);
         }
     }
 }
