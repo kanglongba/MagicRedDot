@@ -76,7 +76,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
         }
     });
     ```
-    3. 效果图
+    3. 效果图  
 ![](https://github.com/kanglongba/QQRedDot/blob/master/screenshot/QQRedDotView_qqdot.gif)
 
 * 普通红点
@@ -99,7 +99,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
     ```
     qqdot5.setUnreadCount(msgCount);
     ```
-    3.效果图
+    3.效果图  
     ![](https://github.com/kanglongba/QQRedDot/blob/master/screenshot/QQRedDotView_updateMsgCount.gif)
     
 * 实心红点
@@ -114,7 +114,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
     app:dotColor="@android:color/holo_red_light"/>
     ```
     2. 不需要在代码中特别设置什么
-    3. 效果图
+    3. 效果图  
     ![](https://github.com/kanglongba/QQRedDot/blob/master/screenshot/QQRedDotView_solid.png)
 
     
