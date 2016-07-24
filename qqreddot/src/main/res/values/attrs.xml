@@ -16,9 +16,9 @@
             <!-- 实心红点,不带消息数,不可拖动-->
             <enum name="solid" value="0" />
             <!-- 带消息数,可拖动-->
-            <enum name="dragable" value="1" />
+            <enum name="qqDot" value="1" />
             <!-- 带消息数,不可拖动-->
-            <enum name="undragable" value="2" />
+            <enum name="common" value="2" />
         </attr>
         <!-- 未读消息数的显示方式-->
         <attr name="countStyle" format="enum" >
