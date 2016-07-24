@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bupt.edison.qqreddot.QQRedDotView;
@@ -31,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
     QQRedDotView qqdot5;
     @Bind(R.id.qqdot_6)
     QQRedDotView qqdot6;
+    @Bind(R.id.textMsgCount)
+    TextView textMsgCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +55,25 @@ public class MainActivity extends AppCompatActivity {
         btnUpdateMsg.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int msgCount = (int) (Math.random() * 1000);
+                int f = (int) (Math.random() * 10);
+                int msgCount = 1;
+                switch (f % 4) {
+                    case 0:
+                        msgCount = (int) (Math.random() * 10); //个位数
+                        break;
+                    case 1:
+                        msgCount = (int) (Math.random() * 100);
+                        break;
+                    case 2:
+                        msgCount = (int) (Math.random() * 1000);
+                        break;
+                    case 3:
+                        msgCount = (int) (Math.random() * 1000);
+                        break;
+                }
                 Log.d("edison", "count " + msgCount);
                 qqdot5.setUnreadCount(msgCount);
+                textMsgCount.setText(String.valueOf(msgCount));
             }
         });
     }

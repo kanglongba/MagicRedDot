@@ -205,6 +205,31 @@
             app:textColor="@android:color/white"
             app:countStyle="blurred"
             app:msgThresholdCount="799"/>
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="right">
+            <TextView
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccent"
+                android:textSize="15sp"
+                android:text="0"
+                android:id="@+id/textMsgCount"
+                android:layout_alignParentRight="true"
+                android:gravity="center_horizontal"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccent"
+                android:textSize="15sp"
+                android:text="当前消息数: "
+                android:layout_toLeftOf="@id/textMsgCount"/>
+
+        </RelativeLayout>
+
     </LinearLayout>
 
 </LinearLayout>
