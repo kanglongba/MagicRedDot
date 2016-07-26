@@ -33,11 +33,11 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
 
 # Usage
 
-添加依赖
+### 添加依赖
 
 > compile 'com.bupt.edison.magicreddot:magicreddot:1.0.0'
 
-在layout xml中使用
+### 在layout xml中使用
 
 * QQ红点
     1. 在XML文件中设置属性
@@ -108,7 +108,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
       ```
       qqdot5.setUnreadCount(msgCount);
       ```
-    3.效果图  
+    3. 效果图  
       ![](https://github.com/kanglongba/MagicRedDot/blob/master/screenshot/QQRedDotView_updateMsgCount.gif)
     
 * 实心红点
@@ -134,6 +134,23 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
 * [贝塞尔曲线扫盲](http://www.html-js.com/article/1628)
 * [Path之贝塞尔曲线](https://github.com/GcsSloop/AndroidNote/blob/master/CustomView/Advance/%5B6%5DPath_Bezier.md)
 * [类似QQ的小红点](https://github.com/mabeijianxi/stickyDots)
+
+# License
+------
+
+    Copyright 2016 qianhailong
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
 
 
 
