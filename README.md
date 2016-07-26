@@ -51,6 +51,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
         app:dragDistance="200dp" />
       ```
     2. 在代码中更新数字和设置监听器
+    
       ```
       //更新数字
       qqdot6.setUnreadCount(666);
@@ -81,6 +82,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
 
 * 普通红点
     1. 在xml中设置属性
+   
       ```
       <com.bupt.edison.magicreddot.MagicRedDotView
          android:layout_width="wrap_content"
@@ -96,6 +98,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
          app:msgThresholdCount="799"/>
       ```
     2. 在代码中更新数字
+    
       ```
       qqdot5.setUnreadCount(msgCount);
       ```
@@ -104,6 +107,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
     
 * 实心红点
     1. 在xml中设置属性
+   
       ```
       <com.bupt.edison.magicreddot.MagicRedDotView
          android:layout_width="wrap_content"
