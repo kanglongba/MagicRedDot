@@ -5,7 +5,7 @@ android {
     buildToolsVersion "24.0.0"
 
     defaultConfig {
-        applicationId "com.bupt.edison.qqreddotdemo"
+        applicationId "com.bupt.edison.magicreddotdemo"
         minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
@@ -23,7 +23,7 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
-    compile project(':qqreddot')
+    compile project(':magicreddot')
 
     compile 'com.jakewharton:butterknife:7.0.1'
 }

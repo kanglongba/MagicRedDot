@@ -10,7 +10,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
-    tools:context="com.bupt.edison.qqreddotdemo.MainActivity">
+    tools:context="com.bupt.edison.magicreddotdemo.MainActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -25,22 +25,22 @@
         android:orientation="horizontal"
         android:gravity="center_vertical">
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:dragDotRadius="10dp"
-            app:dotStyle="common"
+            app:dotStyle="commonDot"
             app:dotColor="@android:color/holo_red_light"
             app:textColor="@android:color/white"
             app:textSize="12sp"
             android:id="@+id/qqdot_0" />
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
             app:dragDotRadius="10dp"
-            app:dotStyle="common"
+            app:dotStyle="commonDot"
             app:countStyle="blurred"
             app:msgThresholdCount="199"
             app:textColor="@android:color/holo_red_dark"
@@ -48,36 +48,36 @@
             app:dotColor="@android:color/holo_blue_dark"
             android:id="@+id/qqdot_1" />
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
             app:dragDotRadius="15dp"
-            app:dotStyle="common"
+            app:dotStyle="commonDot"
             app:countStyle="blurred"
             app:textColor="@android:color/white"
             app:textSize="20sp"
             app:dotColor="@android:color/holo_orange_dark"
             android:id="@+id/qqdot_2" />
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
             app:dragDotRadius="20dp"
-            app:dotStyle="common"
+            app:dotStyle="commonDot"
             app:countStyle="accurate"
             app:textColor="@android:color/holo_red_dark"
             app:textSize="30sp"
             app:dotColor="@android:color/holo_green_dark"
             android:id="@+id/qqdot_3" />
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
             app:dragDotRadius="20dp"
-            app:dotStyle="common"
+            app:dotStyle="commonDot"
             app:countStyle="accurate"
             app:textColor="@android:color/white"
             app:textSize="20sp"
@@ -100,43 +100,43 @@
         android:gravity="center_vertical"
         android:layout_marginTop="10dp">
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:dotStyle="solid"
+            app:dotStyle="solidDot"
             app:dragDotRadius="5dp"
             app:dotColor="@android:color/holo_blue_dark"/>
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            app:dotStyle="solid"
+            app:dotStyle="solidDot"
             app:dragDotRadius="10dp"
             app:dotColor="@android:color/holo_red_dark"/>
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            app:dotStyle="solid"
+            app:dotStyle="solidDot"
             app:dragDotRadius="15dp"
             app:dotColor="@android:color/holo_orange_dark"/>
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
-            app:dotStyle="solid"
+            app:dotStyle="solidDot"
             app:dragDotRadius="20dp"
             app:dotColor="@android:color/holo_red_light"/>
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginLeft="30dp"
             android:background="@android:color/holo_orange_light"
-            app:dotStyle="solid"
+            app:dotStyle="solidDot"
             app:dragDotRadius="15dp"
             app:dotColor="@android:color/holo_green_dark"/>
     </LinearLayout>
@@ -157,7 +157,7 @@
         android:orientation="horizontal"
         android:gravity="center">
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/qqdot_6"
@@ -193,12 +193,12 @@
             android:id="@+id/btn_updateMsg"
             android:textSize="10sp"/>
 
-        <com.bupt.edison.qqreddot.QQRedDotView
+        <com.bupt.edison.magicreddot.MagicRedDotView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
             android:id="@+id/qqdot_5"
-            app:dotStyle="common"
+            app:dotStyle="commonDot"
             app:dragDotRadius="15dp"
             app:textSize="13dp"
             app:dotColor="@android:color/holo_red_light"
