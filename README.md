@@ -33,6 +33,9 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
 
 # Usage
 
+添加依赖
+> compile 'com.bupt.edison.magicreddot:magicreddot:1.0.0'
+
 * QQ红点
     1. 在XML文件中设置属性
    
@@ -102,6 +105,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
       ```
       qqdot5.setUnreadCount(msgCount);
       ```
+      
     3.效果图  
       ![](https://github.com/kanglongba/MagicRedDot/blob/master/screenshot/QQRedDotView_updateMsgCount.gif)
     
