@@ -35,6 +35,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
 
 * QQ红点
     1. 在XML文件中设置属性
+   
       ```
       <com.bupt.edison.magicreddot.MagicRedDotView
         android:layout_width="wrap_content"
