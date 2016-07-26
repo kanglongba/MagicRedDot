@@ -1,10 +1,9 @@
 # Android-MagicRedDot
 Android平台，一站式小红点解决方案，先看效果图：
 
-![](https://github.com/kanglongba/QQRedDot/blob/master/screenshot/QQRedDotView.gif)
+![](https://github.com/kanglongba/MagicRedDot/blob/master/screenshot/QQRedDotView.gif)
 
 PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一路写下来，发现可以扩展成一站式小红点解决方案，于是就有了这个控件。
-
 
 
 # Introduction
@@ -36,7 +35,7 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
 
 * QQ红点
     1. 在XML文件中设置属性
-    ```
+        ```
     <com.bupt.edison.magicreddot.MagicRedDotView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,9 +48,9 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
         app:anchorDotRadius="15dp"
         app:textSize="20sp"
         app:dragDistance="200dp" />
-    ```
+        ```
     2. 在代码中更新数字和设置监听器
-    ```
+        ```
     //更新数字
     qqdot6.setUnreadCount(666);
     //开始拖动的监听
@@ -75,13 +74,13 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
             Toast.makeText(MainActivity.this, "红点消失", Toast.LENGTH_SHORT).show();
         }
     });
-    ```
+        ```
     3. 效果图  
-![](https://github.com/kanglongba/QQRedDot/blob/master/screenshot/QQRedDotView_qqdot.gif)
+![](https://github.com/kanglongba/MagicRedDot/blob/master/screenshot/QQRedDotView_qqdot.gif)
 
 * 普通红点
     1. 在xml中设置属性
-    ```
+        ```
 <com.bupt.edison.magicreddot.MagicRedDotView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -94,17 +93,17 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
     app:textColor="@android:color/white"
     app:countStyle="blurred"
     app:msgThresholdCount="799"/>
-    ```
+        ```
     2. 在代码中更新数字
-    ```
+        ```
     qqdot5.setUnreadCount(msgCount);
-    ```
+        ```
     3.效果图  
-    ![](https://github.com/kanglongba/QQRedDot/blob/master/screenshot/QQRedDotView_updateMsgCount.gif)
+    ![](https://github.com/kanglongba/MagicRedDot/blob/master/screenshot/QQRedDotView_updateMsgCount.gif)
     
 * 实心红点
     1. 在xml中设置属性
-    ```
+        ```
 <com.bupt.edison.magicreddot.MagicRedDotView
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
@@ -112,10 +111,10 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
     app:dotStyle="solidDot"
     app:dragDotRadius="20dp"
     app:dotColor="@android:color/holo_red_light"/>
-    ```
+        ```
     2. 不需要在代码中特别设置什么
     3. 效果图  
-    ![](https://github.com/kanglongba/QQRedDot/blob/master/screenshot/QQRedDotView_solid.png)
+    ![](https://github.com/kanglongba/MagicRedDot/blob/master/screenshot/QQRedDotView_solid.png)
 
     
 # Reference
