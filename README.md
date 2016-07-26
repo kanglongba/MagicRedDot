@@ -136,7 +136,6 @@ PS，原本只是想写一个仿新版QQ可拖拽小红点的控件，然后一�
 * [类似QQ的小红点](https://github.com/mabeijianxi/stickyDots)
 
 # License
-------
 
     Copyright 2016 qianhailong
 
