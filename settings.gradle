@@ -1,1 +1,1 @@
-include ':app', ':magicreddot'
+include ':demo', ':magicreddot'

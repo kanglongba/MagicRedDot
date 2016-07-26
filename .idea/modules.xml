@@ -3,7 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/QQRedDotDemo.iml" filepath="$PROJECT_DIR$/QQRedDotDemo.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/demo/app.iml" filepath="$PROJECT_DIR$/demo/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/magicreddot/magicreddot.iml" filepath="$PROJECT_DIR$/magicreddot/magicreddot.iml" />
       <module fileurl="file://$PROJECT_DIR$/magicreddot/qqreddot.iml" filepath="$PROJECT_DIR$/magicreddot/qqreddot.iml" />
     </modules>
