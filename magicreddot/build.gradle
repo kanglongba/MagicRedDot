@@ -1,11 +1,7 @@
 apply plugin: 'com.android.library'
-//upload to JCenter
+//应用插件
 apply plugin: 'com.github.dcendents.android-maven'
-//upload to JCenter
 apply plugin: 'com.jfrog.bintray'
-
-//upload to JCenter:版本号,以后更新library时,它也要跟着增加
-version = "1.0.0"
 
 android {
     compileSdkVersion 23
@@ -31,11 +27,15 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.4.0'
 }
 
-//below is upload to JCenter
+//定义公共参数
 def siteUrl = 'https://github.com/kanglongba/MagicRedDot'   // 项目的主页
 def gitUrl = 'https://github.com/kanglongba/MagicRedDot.git'   // Git仓库的url
-group = "com.bupt.edison.magicreddot"            // Maven Group ID for the artifact，一般填你唯一的包名
 
+//配置android-maven-gradle-plugin插件
+group = "com.bupt.edison.magicreddot"   // groupId,一般由host+artifactId组成
+version = "1.0.0"  //版本号,以后更新library时,它也要跟着增加
+
+//配置android-maven-gradle-plugin插件
 install {
     repositories.mavenInstaller {
         // This generates POM.xml with proper parameters
@@ -44,8 +44,8 @@ install {
                 packaging 'aar'
 
                 // Add your description here
-                description 'a powerful red dot widget for android'
-                name 'Android Magic Dot'     //项目的描述 你可以多写一点
+                name 'Android Magic Dot'     //项目的名称
+                description 'a powerful red dot widget for android'  //项目的描述
                 url siteUrl
 
                 // Set your license
@@ -58,9 +58,9 @@ install {
 
                 developers {
                     developer {
-                        id 'kanglongba'        //填写的一些基本信息
-                        name 'edison'
-                        email 'kanglongba@gmail.com'
+                        id 'kanglongba'        //bintray的username
+                        name 'edison'          //姓名
+                        email 'kanglongba@gmail.com'      //邮箱
                     }
                 }
 
@@ -94,28 +94,31 @@ artifacts {
     archives sourcesJar
 }
 
+
+//配置gradle-bintray-plugin插件
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
-//https://github.com/bintray/gradle-bintray-plugin
+//对gradle-bintray-plugin插件的配置,全部写在 bintray{ ... } 中
 bintray {
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
 
     configurations = ['archives']
+
     pkg {
         repo = "maven"
-        name = "magicreddot"    //发布到JCenter上的项目名字
+        name = "magicreddot"    //artifactId,会作为library的名称显示在JCenter中
         websiteUrl = siteUrl
         vcsUrl = gitUrl
         licenses = ["Apache-2.0"]
         publish = true
+
         version {
             desc = 'a powerful red dot widget for android'
             gpg {
                 sign = true //Determines whether to GPG sign the files. The default is false
-                passphrase = properties.getProperty("bintray.gpg.password")
-                //Optional. The passphrase for GPG signing'
+                passphrase = properties.getProperty("bintray.gpg.password")  //Optional. The passphrase for GPG signing'
             }
         }
     }
